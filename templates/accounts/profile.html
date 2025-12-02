@@ -1,44 +1,107 @@
 {% extends 'base-sidebar.html' %}
 
 {% block dashboard_content %}
-<div class="container py-4">
-    <div class="row d-flex justify-content-center align-items-center h-100">
-        <div class="col col-lg-8 mb-4 mb-lg-0">
-            <div class="card shadow-sm border-0 rounded-3">
-                <div class="row g-0">
-                    <div class="col-md-4 bg-gradient text-center text-white p-4" 
-                         style="background-color: #212529; border-top-left-radius: .5rem; border-bottom-left-radius: .5rem;">
-                        <img src="{{ request.user.user_profile.profile_picture.url }}"
-                             alt="Avatar" class="img-fluid rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;" />
-                        <h5>{{ request.user.get_full_name|default:request.user.username }}</h5>
-                        <p class="mb-1">{{ request.user.user_profile.headline|default:"No headline" }}</p>
-                        <a href="{% url 'account:users-settings' %}" class="btn btn-outline-light btn-sm mt-2">Edit Profile</a>
+<div class="container">
+    <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+        
+        <!-- Cover Image Section -->
+        <!-- Check if cover is present (not the default one) -->
+        {% with cover_url=request.user.user_profile.cover_picture.url %}
+        <div class="position-relative w-100" 
+             style="height: 250px; 
+             {% if '_default.jpg' not in cover_url %}
+                 background-image: url('{{ cover_url }}'); 
+                 background-size: cover; 
+                 background-position: center;
+             {% else %}
+                 background-color: #212529; 
+                 background: linear-gradient(180deg, rgba(33,37,41,1) 0%, rgba(52,58,64,1) 100%);
+             {% endif %}">
+        {% endwith %}
+        </div>
+
+        <!-- Profile Info Section -->
+        <div class="card-body px-4">
+            
+            <!-- Profile Header Row (Picture overlaps the cover) -->
+            <div class="row mb-4">
+                <div class="col-auto position-relative" style="margin-top: -80px;">
+                    <!-- Profile Picture -->
+                    <img src="{{ request.user.user_profile.profile_picture.url }}" 
+                         alt="Profile" 
+                         class="rounded-circle img-thumbnail shadow-sm border-white"
+                         style="width: 160px; height: 160px; object-fit: cover; border-width: 5px;">
+                </div>
+                
+                <div class="col pt-2 d-flex flex-column justify-content-between">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                        <div>
+                            <h2 class="fw-bold mb-1 text-body">{{ request.user.get_full_name|default:request.user.username }}</h2>
+                            <p class="text-muted fs-5 mb-0">{{ request.user.user_profile.headline|default:"No headline added" }}</p>
+                        </div>
+                        
+                        <a href="{% url 'account:users-settings' %}" class="btn btn-outline-primary">
+                            <i class="fa-solid fa-pen-to-square me-2"></i>Edit Profile
+                        </a>
                     </div>
-                    <div class="col-md-8">
-                        <div class="card-body p-4">
-                            <h6>Information</h6>
-                            <hr class="mt-0 mb-4">
-                            <div class="row pt-1">
-                                <div class="col-6 mb-3">
-                                    <h6>Email</h6>
-                                    <p class="text-muted">{{ request.user.email }}</p>
+                </div>
+            </div>
+
+            <hr class="text-muted opacity-25">
+
+            <!-- Details Grid -->
+            <div class="row g-4 mt-2">
+                <!-- About Section -->
+                <div class="col-lg-8">
+                    <div class="pe-lg-4">
+                        <h5 class="fw-bold mb-3 text-body"><i class="fa-solid fa-user-tag me-2 text-primary"></i>About</h5>
+                        <div class="bg-body-tertiary p-4 rounded-3">
+                            <p class="mb-0 text-secondary" style="white-space: pre-line; line-height: 1.6;">{{ request.user.user_profile.bio|default:"This user hasn't written a bio yet." }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Sidebar -->
+                <div class="col-lg-4">
+                    <div class="card border-0 bg-body-tertiary h-100">
+                        <div class="card-body">
+                            <h5 class="fw-bold mb-4 text-body"><i class="fa-solid fa-circle-info me-2 text-primary"></i>Details</h5>
+                            
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="text-center me-3" style="width: 24px;">
+                                    <i class="fa-regular fa-envelope text-muted fs-5"></i>
                                 </div>
-                                <div class="col-6 mb-3">
-                                    <h6>Gender</h6>
-                                    <p class="text-muted">{{ request.user.user_profile.gender|default:"Not specified" }}</p>
+                                <div>
+                                    <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Email</small>
+                                    <div class="fw-medium">{{ request.user.email }}</div>
                                 </div>
                             </div>
-                            <h6>About Me</h6>
-                            <hr class="mt-0 mb-4">
-                            <div class="row pt-1">
-                                <div class="col-12 mb-3">
-                                    <p class="text-muted">{{ request.user.user_profile.bio|default:"No bio added yet." }}</p>
+
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="text-center me-3" style="width: 24px;">
+                                    <i class="fa-solid fa-venus-mars text-muted fs-5"></i>
+                                </div>
+                                <div>
+                                    <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Gender</small>
+                                    <div class="fw-medium">{{ request.user.user_profile.gender|default:"Not specified" }}</div>
                                 </div>
                             </div>
+
+                            <div class="d-flex align-items-center">
+                                <div class="text-center me-3" style="width: 24px;">
+                                    <i class="fa-regular fa-calendar-check text-muted fs-5"></i>
+                                </div>
+                                <div>
+                                    <small class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem;">Joined</small>
+                                    <div class="fw-medium">{{ request.user.date_joined|date:"F d, Y" }}</div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>

@@ -16,7 +16,7 @@ from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import *
-#from .helpers import generate_thumbnail, delete_old_image
+from .helpers import generate_thumbnail, get_thumbnail_url
 from .models import *
 
 # Create your views here.
@@ -71,6 +71,11 @@ class customLoginView(LoginView):
 
             if user is not None:
                 login(request, user)
+                
+                # Store thumbnail path and username in session
+                request.session['user_avatar'] = get_thumbnail_url(user.user_profile)
+                request.session['user_username'] = user.username
+
                 remember_me = form.cleaned_data.get('remember_me')
                 if not remember_me:
                     request.session.set_expiry(600)
@@ -119,12 +124,20 @@ class SettingsView(LoginRequiredMixin, View):
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile = profile_form.save(commit=False)
+            
+            # Update session username in case it changed
+            request.session['user_username'] = request.user.username
+
             # Check if a new profile picture is uploaded
             if 'profile_picture' in request.FILES:
                 profile.save()
-                # Generate thumbnail
-                #generate_thumbnail(profile.profile_picture.path)
-                #delete_old_image(old_profile_pic)
+                # Generate thumbnail and update session
+                thumb_url = generate_thumbnail(profile)
+                request.session['user_avatar'] = thumb_url
+                
+                # Optional: Delete old image if not default
+                # if 'default.jpg' not in old_profile_pic:
+                #    delete_old_image(old_profile_pic)
             else:
                 profile.save()
             messages.success(request, 'Your profile is updated successfully')
@@ -142,6 +155,11 @@ class DeleteAvatarView(LoginRequiredMixin, View):
         profile.profile_picture = 'Accounts/profile_images/default.jpg'
         #delete_old_image(old_profile_pic)
         profile.save()
+        
+        # Reset session avatar to default and ensure username is set
+        request.session['user_avatar'] = get_thumbnail_url(profile)
+        request.session['user_username'] = request.user.username
+        
         messages.success(request, 'Avatar deleted successfully')
         return redirect(to='account:users-settings')
 

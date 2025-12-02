@@ -5,3 +5,4 @@ Scraper/
 thumbnails/
 log/
 *.log
+*identifier
