@@ -17,7 +17,8 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, re_path, include
+from apps.common.views import SecureMediaView
 
 admin.site.site_header = "ProjectR"
 
@@ -25,6 +26,7 @@ urlpatterns = [
     path('account/', include('apps.account.urls', namespace='account')),
     path('', include('apps.dashboard.urls', namespace='dashboard')),
     path('admin/', admin.site.urls),
+    re_path(r'^media/(?P<path>.*)$', SecureMediaView.as_view(), name='secure_media'),
 ]
 
 urlpatterns += static (settings.MEDIA_URL, document_root=settings.MEDIA_ROOT,)

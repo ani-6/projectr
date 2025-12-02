@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'apps.account',
     'apps.dashboard',
+    'apps.common', # Registered the common app
 ]
 
 MIDDLEWARE = [
@@ -128,8 +129,15 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static/"),
 ]
 
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
-
+# Configure Storages (Django 4.2+)
+STORAGES = {
+    "default": {
+        "BACKEND": "apps.common.storage.SecureFileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
+    },
+}
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles/')

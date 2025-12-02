@@ -1,6 +1,7 @@
 import os
 from PIL import Image
 from django.conf import settings
+from django.core.files.storage import default_storage
 
 def generate_thumbnail(profile):
     """
@@ -10,14 +11,16 @@ def generate_thumbnail(profile):
     if not profile.profile_picture:
         return None
 
-    original_path = profile.profile_picture.path
+    try:
+        original_path = profile.profile_picture.path
+    except NotImplementedError:
+        return profile.profile_picture.url
     
     # Check if file exists
     if not os.path.exists(original_path):
         return profile.profile_picture.url
 
-    # Avoid processing default images if they are just static assets
-    # Assuming default images might contain 'default.jpg'
+    # Avoid processing default images
     if 'default.jpg' in os.path.basename(original_path):
         return profile.profile_picture.url
 
@@ -37,19 +40,22 @@ def generate_thumbnail(profile):
         # Generate thumbnail
         img = Image.open(original_path)
         
-        # Convert to RGB to ensure compatibility (e.g., if source is RGBA or Palette)
+        # Convert to RGB to ensure compatibility
         if img.mode in ('RGBA', 'P'):
             img = img.convert('RGB')
             
-        # Resize/Thumbnail (100x100 is sufficient for navbar)
+        # Resize/Thumbnail
         img.thumbnail((150, 150)) 
         img.save(thumb_path)
 
-        # Return URL relative to MEDIA_URL
+        # Return URL relative to MEDIA_ROOT
         relative_path = os.path.relpath(thumb_path, settings.MEDIA_ROOT)
         # Ensure forward slashes for URLs even on Windows
         relative_path = relative_path.replace('\\', '/')
-        return settings.MEDIA_URL + relative_path
+        
+        # Use default_storage.url() to generate the signed URL
+        # This applies the SecureFileSystemStorage logic defined in settings
+        return default_storage.url(relative_path)
 
     except Exception as e:
         print(f"Error generating thumbnail: {e}")
@@ -79,7 +85,8 @@ def get_thumbnail_url(profile):
         if os.path.exists(thumb_path):
             relative_path = os.path.relpath(thumb_path, settings.MEDIA_ROOT)
             relative_path = relative_path.replace('\\', '/')
-            return settings.MEDIA_URL + relative_path
+            # Use default_storage.url() to generate the signed URL
+            return default_storage.url(relative_path)
     except:
         pass
 
