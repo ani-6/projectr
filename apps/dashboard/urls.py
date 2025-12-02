@@ -1,11 +1,13 @@
-from django.conf import settings
-from django.conf.urls.static import static
-from django.urls import include, path, re_path
-from apps.dashboard.views import homeView
+from django.urls import path
+from apps.dashboard.views import homeView, user_dashboard, manager_dashboard
 
 app_name = 'dashboard'
 
 urlpatterns = [
-     #Account
-     path('', homeView, name='home')
+     # The root path now acts as a dispatcher
+     path('', homeView, name='home'),
+     
+     # Explicit paths for the separate dashboards
+     path('user/', user_dashboard, name='user-dashboard'),
+     path('manager/', manager_dashboard, name='manager-dashboard'),
 ]
