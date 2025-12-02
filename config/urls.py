@@ -22,7 +22,7 @@ from django.urls import path, include
 admin.site.site_header = "ProjectR"
 
 urlpatterns = [
-    path('accounts/', include('apps.accounts.urls', namespace='accounts')),
+    path('account/', include('apps.account.urls', namespace='account')),
     path('', include('apps.dashboard.urls', namespace='dashboard')),
     path('admin/', admin.site.urls),
 ]
