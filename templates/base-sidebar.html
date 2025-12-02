@@ -21,17 +21,17 @@
         <ul class="nav nav-pills flex-column mb-auto">
             <li class="nav-item">
                 <a href="{% url 'dashboard:home' %}" class="nav-link text-white {% if request.resolver_match.view_name == 'dashboard:home' %}active{% endif %}" aria-current="page">
-                    Dashboard
+                    <i class="fa-solid fa-house me-2" style="width: 20px; text-align: center;"></i> Dashboard
                 </a>
             </li>
             <li>
                 <a href="{% url 'account:profile' %}" class="nav-link text-white {% if request.resolver_match.view_name == 'account:profile' %}active{% endif %}">
-                    Profile
+                    <i class="fa-solid fa-user me-2" style="width: 20px; text-align: center;"></i> Profile
                 </a>
             </li>
             <li>
                 <a href="{% url 'account:users-settings' %}" class="nav-link text-white {% if request.resolver_match.view_name == 'account:users-settings' %}active{% endif %}">
-                    Settings
+                    <i class="fa-solid fa-gear me-2" style="width: 20px; text-align: center;"></i> Settings
                 </a>
             </li>
         </ul>
@@ -39,35 +39,91 @@
         
         <div class="mb-3">
             <button class="btn btn-outline-light w-100 d-flex align-items-center justify-content-center gap-2 btn-sm" id="themeToggle">
-                <span id="themeIcon">🌙</span> <span id="themeText">Switch Theme</span>
+                <i class="fa-solid fa-moon" id="themeIcon"></i> <span id="themeText">Switch Theme</span>
             </button>
         </div>
     </div>
 
     <div class="main-wrapper bg-body-tertiary">
         
-        <header class="top-bar bg-white shadow-sm">
+        <!-- Changed bg-white to bg-body for dark mode support -->
+        <header class="top-bar bg-body shadow-sm">
             
-            <div class="d-flex align-items-center gap-3">
-                <button class="btn btn-light d-lg-none border-0" type="button" onclick="toggleSidebar()">
-                    <span class="fs-4">☰</span>
+            <div class="d-flex align-items-center gap-3 flex-grow-1">
+                <button class="btn btn-link text-body d-lg-none border-0 p-0 text-decoration-none" type="button" onclick="toggleSidebar()">
+                    <i class="fa-solid fa-bars fs-4"></i>
                 </button>
 
-                <form class="d-none d-lg-block position-relative">
-                    <input type="search" class="form-control bg-light border-0 ps-4" placeholder="Search..." aria-label="Search">
-                    <span class="position-absolute top-50 start-0 translate-middle-y ps-2 text-muted">🔍</span>
+                <!-- Search Bar -->
+                <form class="d-none d-lg-block position-relative w-100" style="max-width: 400px;">
+                    <span class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted search-icon-container">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="search" class="form-control ps-5 rounded-pill" placeholder="Search..." aria-label="Search">
                 </form>
             </div>
 
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-4">
                 
-                <a href="#" class="position-relative text-secondary text-decoration-none fs-5 me-2">
-                    🔔
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.5rem;">
-                        3
-                        <span class="visually-hidden">unread messages</span>
-                    </span>
-                </a>
+                <!-- Notification Dropdown -->
+                <div class="dropdown">
+                    <a href="#" class="position-relative text-secondary text-decoration-none fs-5 hide-arrow" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.5rem; transform: translate(-50%, -20%) !important;">
+                            3
+                            <span class="visually-hidden">unread messages</span>
+                        </span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="width: 300px;">
+                        <li><h6 class="dropdown-header">Notifications</h6></li>
+                        <li><hr class="dropdown-divider"></li>
+                        
+                        <!-- Item 1 -->
+                        <li>
+                            <a class="dropdown-item d-flex align-items-start gap-2 py-2" href="#">
+                                <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px;">
+                                    <i class="fa-solid fa-user-plus fa-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-0 small fw-semibold">New User Registered</p>
+                                    <p class="mb-0 small text-muted" style="font-size: 0.75rem;">John Doe joined the platform.</p>
+                                    <p class="mb-0 text-muted" style="font-size: 0.7rem;">2 min ago</p>
+                                </div>
+                            </a>
+                        </li>
+                        
+                        <!-- Item 2 -->
+                        <li>
+                            <a class="dropdown-item d-flex align-items-start gap-2 py-2" href="#">
+                                <div class="bg-success bg-opacity-10 text-success rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px;">
+                                    <i class="fa-solid fa-check fa-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-0 small fw-semibold">Project Approved</p>
+                                    <p class="mb-0 small text-muted" style="font-size: 0.75rem;">Your proposal has been accepted.</p>
+                                    <p class="mb-0 text-muted" style="font-size: 0.7rem;">1 hour ago</p>
+                                </div>
+                            </a>
+                        </li>
+                        
+                        <!-- Item 3 -->
+                        <li>
+                            <a class="dropdown-item d-flex align-items-start gap-2 py-2" href="#">
+                                <div class="bg-warning bg-opacity-10 text-warning rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px;">
+                                    <i class="fa-solid fa-triangle-exclamation fa-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="mb-0 small fw-semibold">System Alert</p>
+                                    <p class="mb-0 small text-muted" style="font-size: 0.75rem;">Scheduled maintenance tomorrow.</p>
+                                    <p class="mb-0 text-muted" style="font-size: 0.7rem;">Yesterday</p>
+                                </div>
+                            </a>
+                        </li>
+                        
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-center small text-primary fw-bold" href="#">View all notifications</a></li>
+                    </ul>
+                </div>
 
                 <div class="dropdown">
                     <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle hide-arrow" data-bs-toggle="dropdown" aria-expanded="false">
@@ -75,22 +131,32 @@
                             <img src="{{ request.user.user_profile.profile_picture.url }}" alt="User" class="profile-pic-sm">
                         {% else %}
                             <div class="profile-pic-sm bg-secondary d-flex align-items-center justify-content-center text-white">
-                                {{ request.user.username|slice:":1"|upper }}
+                                <span class="fw-bold">{{ request.user.username|slice:":1"|upper }}</span>
                             </div>
                         {% endif %}
-                        <span class="d-none d-lg-block ms-2 fw-semibold text-dark">{{ request.user.username }}</span>
+                        <span class="d-none d-lg-block ms-2 fw-semibold text-body">{{ request.user.username }}</span>
                     </a>
                     
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0">
                         <li><h6 class="dropdown-header">Signed in as <br><strong>{{ request.user.username }}</strong></h6></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{% url 'account:profile' %}">My Profile</a></li>
-                        <li><a class="dropdown-item" href="{% url 'account:users-settings' %}">Settings</a></li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'account:profile' %}">
+                                <i class="fa-regular fa-user me-2 text-muted"></i> My Profile
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'account:users-settings' %}">
+                                <i class="fa-solid fa-cog me-2 text-muted"></i> Settings
+                            </a>
+                        </li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <form action="{% url 'account:logout' %}" method="post">
                                 {% csrf_token %}
-                                <button type="submit" class="dropdown-item text-danger">Sign out</button>
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Sign out
+                                </button>
                             </form>
                         </li>
                     </ul>
@@ -98,20 +164,41 @@
             </div>
         </header>
 
-        <main class="p-3 overflow-auto">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-
+        <main class="p-2 w-100">
+            <!-- Messages (Alerts) have been moved to Toasts below -->
             {% block dashboard_content %}{% endblock %}
         </main>
     </div>
 </div>
+
+<!-- Django Messages as Toasts -->
+{% if messages %}
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1060">
+    {% for message in messages %}
+    <div class="toast border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+        <div class="toast-header">
+            {% if 'success' in message.tags %}
+                <strong class="me-auto text-success"><i class="fa-solid fa-circle-check me-2"></i>Success</strong>
+            {% elif 'error' in message.tags or 'danger' in message.tags %}
+                <strong class="me-auto text-danger"><i class="fa-solid fa-circle-xmark me-2"></i>Error</strong>
+            {% elif 'warning' in message.tags %}
+                <strong class="me-auto text-warning"><i class="fa-solid fa-triangle-exclamation me-2"></i>Warning</strong>
+            {% elif 'info' in message.tags %}
+                <strong class="me-auto text-info"><i class="fa-solid fa-circle-info me-2"></i>Info</strong>
+            {% else %}
+                <strong class="me-auto">Notification</strong>
+            {% endif %}
+            
+            <small class="text-muted">Just now</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            {{ message }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 
 <script>
     // --- Sidebar Toggle Logic ---
@@ -133,16 +220,32 @@
     const themeIcon = document.getElementById('themeIcon');
     const htmlElement = document.documentElement;
 
-    // Load saved preference
+    function updateIcon(theme) {
+        if (theme === 'dark') {
+            themeIcon.className = 'fa-solid fa-sun';
+        } else {
+            themeIcon.className = 'fa-solid fa-moon';
+        }
+    }
+
     const currentTheme = localStorage.getItem('theme') || 'light';
     htmlElement.setAttribute('data-bs-theme', currentTheme);
-    themeIcon.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+    updateIcon(currentTheme);
 
     toggleButton.addEventListener('click', () => {
         const newTheme = htmlElement.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
         htmlElement.setAttribute('data-bs-theme', newTheme);
         localStorage.setItem('theme', newTheme);
-        themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        updateIcon(newTheme);
+    });
+
+    // --- Initialize Toasts (Auto-Show) ---
+    document.addEventListener('DOMContentLoaded', function() {
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function (toastEl) {
+            return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show());
     });
 </script>
 {% endblock %}

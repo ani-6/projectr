@@ -12,22 +12,30 @@
     background-color: #212529;
     flex-shrink: 0;
     transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Desktop: Sidebar is sticky */
+/* Desktop: Sidebar is fixed */
 @media (min-width: 992px) {
     .sidebar {
-        position: sticky;
+        position: fixed;
         top: 0;
+        left: 0;
+        bottom: 0;
         height: 100vh;
-        display: flex !important;
-        /* Force show on desktop */
         z-index: 1000;
+        overflow-y: auto; /* Allows scrolling inside the sidebar if needed */
     }
 
     .mobile-header {
         display: none !important;
-        /* Hide mobile-specific header on desktop */
+    }
+
+    /* Push main content to the right */
+    .main-wrapper {
+        margin-left: 280px;
+        width: calc(100% - 280px);
     }
 }
 
@@ -67,16 +75,16 @@
 /* --- Top Bar (Header) Styles --- */
 .top-bar {
     height: 70px;
-    background-color: var(--bs-body-bg);
-    /* Matches theme */
+    background-color: var(--bs-body-bg); /* Use Bootstrap variable for theme adaptability */
     border-bottom: 1px solid var(--bs-border-color);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 0.7rem;
+    padding: 0 1.5rem;
     position: sticky;
     top: 0;
     z-index: 1020;
+    transition: background-color 0.3s ease;
 }
 
 /* --- Main Content Area --- */
@@ -95,4 +103,29 @@
     object-fit: cover;
     border-radius: 50%;
     border: 2px solid #dee2e6;
+}
+
+/* --- Utilities --- */
+
+/* Hide Dropdown Arrow */
+.dropdown-toggle.hide-arrow::after {
+    display: none !important;
+}
+
+/* Search Bar Tweaks */
+.search-icon-container {
+    pointer-events: none; /* Allows clicking through the icon to the input if needed */
+    z-index: 5;
+}
+
+/* Ensure form controls look good in dark mode if not automatically handled */
+[data-bs-theme="dark"] .form-control {
+    background-color: #2b3035;
+    border-color: #495057;
+    color: #fff;
+}
+[data-bs-theme="dark"] .form-control:focus {
+    background-color: #2b3035;
+    border-color: #86b7fe;
+    color: #fff;
 }

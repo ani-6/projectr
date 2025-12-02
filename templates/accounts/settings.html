@@ -1,31 +1,49 @@
 {% extends 'base-sidebar.html' %}
 
 {% block dashboard_content %}
-<div class="container-xl px-4 mt-4">
+<div class="container py-3">
     <h1 class="h3 mb-4 text-gray-800">Account Settings</h1>
     
-    <div class="row">
-        <div class="col-xl-4">
-            <div class="card mb-4 mb-xl-0 shadow-sm">
-                <div class="card-header">Profile Picture</div>
-                <div class="card-body text-center">
-                    <img class="img-account-profile rounded-circle mb-2" src="{{ request.user.user_profile.profile_picture.url }}" alt="Profile Picture" style="width: 150px; height: 150px; object-fit: cover;">
-                    <div class="small font-italic text-muted mb-4">JPG or PNG no larger than 5 MB</div>
-                    
-                    <form method="post" action="{% url 'account:delete-avatar' %}">
-                        {% csrf_token %}
-                        <button class="btn btn-danger btn-sm" type="submit">Delete Avatar</button>
-                    </form>
+    <!-- Hidden Form for Deletion (Outside the main form) -->
+    <form id="deleteAvatarForm" method="post" action="{% url 'account:delete-avatar' %}">
+        {% csrf_token %}
+    </form>
+
+    <!-- Main Update Form (Wraps both columns) -->
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+            <!-- Left Column: Profile Picture -->
+            <div class="col-xl-4">
+                <div class="card mb-4 mb-xl-0 shadow-sm">
+                    <div class="card-header">Profile Picture</div>
+                    <div class="card-body text-center">
+                        <!-- Profile Image with ID for Preview -->
+                        <img id="avatarPreview" class="img-account-profile rounded-circle mb-3" 
+                             src="{{ request.user.user_profile.profile_picture.url }}" 
+                             alt="Profile Picture" 
+                             style="width: 150px; height: 150px; object-fit: cover; border: 4px solid #f8f9fa;">
+                        
+                        <div class="small font-italic text-muted mb-3">JPG or PNG no larger than 5 MB</div>
+                        
+                        <!-- File Input Moved Here -->
+                        <div class="mb-3 px-3">
+                            {{ profile_form.profile_picture }}
+                        </div>
+
+                        <!-- Delete Button Linked to Hidden Form -->
+                        <button class="btn btn-danger btn-sm" type="submit" form="deleteAvatarForm">
+                            <i class="fa-solid fa-trash me-2"></i>Delete Avatar
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-xl-8">
-            <div class="card shadow-sm">
-                <div class="card-header">Account Details</div>
-                <div class="card-body">
-                    <form method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
+            <!-- Right Column: Account Details -->
+            <div class="col-xl-8">
+                <div class="card shadow-sm">
+                    <div class="card-header">Account Details</div>
+                    <div class="card-body">
                         
                         <h6 class="heading-small text-muted mb-4">User Information</h6>
                         <div class="row gx-3 mb-3">
@@ -61,10 +79,7 @@
                                 <label class="small mb-1" for="{{ profile_form.gender.id_for_label }}">Gender</label>
                                 {{ profile_form.gender }}
                             </div>
-                            <div class="col-md-6">
-                                <label class="small mb-1" for="{{ profile_form.profile_picture.id_for_label }}">Update Picture</label>
-                                {{ profile_form.profile_picture }}
-                            </div>
+                            <!-- Removed File Input from here -->
                         </div>
                         <div class="mb-3">
                             <label class="small mb-1" for="{{ profile_form.bio.id_for_label }}">Bio</label>
@@ -72,10 +87,31 @@
                         </div>
 
                         <button class="btn btn-primary" type="submit">Save Changes</button>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 </div>
+
+<script>
+    // Image Preview Logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const profileInput = document.getElementById('id_profile_picture');
+        const avatarPreview = document.getElementById('avatarPreview');
+
+        if (profileInput && avatarPreview) {
+            profileInput.addEventListener('change', function(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        avatarPreview.src = e.target.result;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}
