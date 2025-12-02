@@ -85,3 +85,13 @@ def get_thumbnail_url(profile):
 
     # Fallback to original if thumb doesn't exist
     return profile.profile_picture.url
+
+def delete_old_image(image_path):
+    """
+    Deletes the old image file from the filesystem if it exists and is not a default image.
+    """
+    try:
+        if os.path.exists(image_path) and 'default.jpg' not in os.path.basename(image_path):
+            os.remove(image_path)
+    except Exception as e:
+        print(f"Error deleting old image: {e}")

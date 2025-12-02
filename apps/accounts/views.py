@@ -2,13 +2,10 @@ import os
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordResetView, LogoutView
 from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import Q
-from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
@@ -16,7 +13,7 @@ from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from .forms import *
-from .helpers import generate_thumbnail, get_thumbnail_url
+from .helpers import generate_thumbnail, get_thumbnail_url, delete_old_image
 from .models import *
 
 # Create your views here.
@@ -28,7 +25,7 @@ class registerView(View):
     def dispatch(self, request, *args, **kwargs):
         # will redirect to the home page if a user tries to access the register page while logged in
         if request.user.is_authenticated:
-            return redirect(to='/')
+            return redirect('/')
 
         # else process dispatch as it otherwise normally would
         return super(registerView, self).dispatch(request, *args, **kwargs)
@@ -44,10 +41,10 @@ class registerView(View):
             user = form.save(commit=False)
             user.save()
             username = form.cleaned_data.get('username')
-            group = Group.objects.get(name='Users')   #Get users group
-            user.groups.add(group)     #Add user to users group
+            group, created = Group.objects.get_or_create(name='Users')
+            user.groups.add(group)
             messages.success(request, f'Account created for {username}')
-            return redirect(to='account:login')
+            return redirect('account:login')
 
         return render(request, self.template_name, {'form': form})
 
@@ -136,12 +133,14 @@ class SettingsView(LoginRequiredMixin, View):
                 request.session['user_avatar'] = thumb_url
                 
                 # Optional: Delete old image if not default
-                # if 'default.jpg' not in old_profile_pic:
-                #    delete_old_image(old_profile_pic)
+                if 'default.jpg' not in old_profile_pic:
+                    thumbnail_path = os.path.join(os.path.dirname(old_profile_pic), 'thumbs', f"thumb_{os.path.basename(old_profile_pic)}")
+                    delete_old_image(old_profile_pic)
+                    delete_old_image(thumbnail_path)
             else:
                 profile.save()
             messages.success(request, 'Your profile is updated successfully')
-            return redirect(to='account:users-settings')
+            return redirect('account:users-settings')
         
         return render(request, self.template_name, {'user_form': user_form, 'profile_form': profile_form})
 
@@ -152,8 +151,10 @@ class DeleteAvatarView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         profile = Profile.objects.get(user=request.user)
         old_profile_pic = request.user.user_profile.profile_picture.path
+        thumbnail_path = os.path.join(os.path.dirname(old_profile_pic), 'thumbs', f"thumb_{os.path.basename(old_profile_pic)}")
         profile.profile_picture = 'Accounts/profile_images/default.jpg'
-        #delete_old_image(old_profile_pic)
+        delete_old_image(old_profile_pic)
+        delete_old_image(thumbnail_path)
         profile.save()
         
         # Reset session avatar to default and ensure username is set
@@ -161,7 +162,7 @@ class DeleteAvatarView(LoginRequiredMixin, View):
         request.session['user_username'] = request.user.username
         
         messages.success(request, 'Avatar deleted successfully')
-        return redirect(to='account:users-settings')
+        return redirect('account:users-settings')
 
 
 class ProfileView(LoginRequiredMixin, TemplateView):
