@@ -1,6 +1,6 @@
 import os
 import mimetypes
-from urllib.parse import unquote  # Import unquote
+from urllib.parse import unquote
 from django.conf import settings
 from django.core import signing
 from django.http import Http404, HttpResponseForbidden, FileResponse
@@ -10,29 +10,32 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 class SecureMediaView(LoginRequiredMixin, View):
     """
     View to serve media files only to authenticated users.
-    Decodes signed URLs to hide the directory structure.
+    Handles both signed (obfuscated) and raw paths based on settings.
     """
     raise_exception = False
 
     def get(self, request, path):
         # 1. URL Decode the path
-        # Browsers might encode ':' as '%3A', which breaks the signature check.
-        # unquote() fixes this.
         path = unquote(path)
+        
+        file_path_rel = None
 
-        # 2. Decode the signed path
-        try:
-            # This reverses the signing done in SecureFileSystemStorage.url()
-            file_path_rel = signing.loads(path, salt='secure-media')
-        except signing.BadSignature:
-            # Debugging: Print to console if signature fails
-            print(f"SecureMediaView: BadSignature for path: {path}")
-            raise Http404("Invalid media URL")
+        # 2. Check Encryption Setting
+        if getattr(settings, 'SECURE_MEDIA_ENCRYPTION', True):
+            # Encryption ON: Decode the signed path
+            try:
+                file_path_rel = signing.loads(path, salt='secure-media')
+            except signing.BadSignature:
+                print(f"SecureMediaView: BadSignature for path: {path}")
+                raise Http404("Invalid media URL")
+        else:
+            # Encryption OFF: The path in URL is the actual relative path
+            file_path_rel = path
 
         # 3. Construct the full path
         file_path = os.path.join(settings.MEDIA_ROOT, file_path_rel)
         
-        # 4. Security: Prevent directory traversal
+        # 4. Security: Prevent directory traversal (Critical for both modes)
         try:
             full_path = os.path.abspath(file_path)
             media_root = os.path.abspath(settings.MEDIA_ROOT)

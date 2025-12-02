@@ -153,3 +153,9 @@ LOGIN_URL = 'account:login'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Custom Security Settings
+# True: URLs are obfuscated (signed). False: URLs are readable paths (e.g., /media/folder/file.jpg)
+# Both modes still require the user to be logged in via SecureMediaView.
+SECURE_MEDIA_ENCRYPTION = True
