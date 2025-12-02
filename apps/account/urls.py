@@ -25,5 +25,5 @@ urlpatterns = [
     path('api/register/', RegisterAPIView.as_view(), name='api-register'),
     path('api/login/', LoginAPIView.as_view(), name='api-login'),
     path('api/logout/', LogoutAPIView.as_view(), name='api-logout'),
-    path('api/me/', UserProfileAPIView.as_view(), name='api-me'),
+    path('api/profile/', UserProfileAPIView.as_view(), name='api-profile'),
 ]
