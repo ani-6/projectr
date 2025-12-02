@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-ao1%69%(k-+x08f)!nl+&np-r22u)f7wza_!*e6x9auyyy=ke^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     'apps.account',
     'apps.dashboard',
     'apps.common', # Registered the common app
+    'rest_framework',
+    'rest_framework.authtoken',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -85,6 +88,16 @@ DATABASES = {
     }
 }
 
+# Add this configuration at the bottom of the file
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
