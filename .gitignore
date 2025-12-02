@@ -1,0 +1,7 @@
+__pycache__/
+debug.log
+logfile.log
+Scraper/
+thumbnails/
+log/
+*.log
