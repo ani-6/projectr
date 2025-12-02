@@ -69,56 +69,50 @@
                 <div class="dropdown">
                     <a href="#" class="position-relative text-secondary text-decoration-none fs-5 hide-arrow" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fa-regular fa-bell"></i>
+                        {% if user_notifications_count > 0 %}
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.5rem; transform: translate(-50%, -20%) !important;">
-                            3
+                            {{ user_notifications_count }}
                             <span class="visually-hidden">unread messages</span>
                         </span>
+                        {% endif %}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="width: 300px;">
-                        <li><h6 class="dropdown-header">Notifications</h6></li>
-                        <li><hr class="dropdown-divider"></li>
-                        
-                        <!-- Item 1 -->
                         <li>
-                            <a class="dropdown-item d-flex align-items-start gap-2 py-2" href="#">
-                                <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px;">
-                                    <i class="fa-solid fa-user-plus fa-xs"></i>
-                                </div>
-                                <div>
-                                    <p class="mb-0 small fw-semibold">New User Registered</p>
-                                    <p class="mb-0 small text-muted" style="font-size: 0.75rem;">John Doe joined the platform.</p>
-                                    <p class="mb-0 text-muted" style="font-size: 0.7rem;">2 min ago</p>
-                                </div>
-                            </a>
+                            <div class="d-flex justify-content-between align-items-center px-3 py-2">
+                                <h6 class="dropdown-header mb-0 p-0">Notifications</h6>
+                                <button onclick="markAllRead()" class="btn btn-link btn-sm p-0 text-decoration-none" style="font-size: 0.75rem;">Mark all read</button>
+                            </div>
                         </li>
+                        <li><hr class="dropdown-divider m-0"></li>
                         
-                        <!-- Item 2 -->
-                        <li>
-                            <a class="dropdown-item d-flex align-items-start gap-2 py-2" href="#">
-                                <div class="bg-success bg-opacity-10 text-success rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px;">
-                                    <i class="fa-solid fa-check fa-xs"></i>
-                                </div>
-                                <div>
-                                    <p class="mb-0 small fw-semibold">Project Approved</p>
-                                    <p class="mb-0 small text-muted" style="font-size: 0.75rem;">Your proposal has been accepted.</p>
-                                    <p class="mb-0 text-muted" style="font-size: 0.7rem;">1 hour ago</p>
-                                </div>
-                            </a>
-                        </li>
-                        
-                        <!-- Item 3 -->
-                        <li>
-                            <a class="dropdown-item d-flex align-items-start gap-2 py-2" href="#">
-                                <div class="bg-warning bg-opacity-10 text-warning rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px;">
-                                    <i class="fa-solid fa-triangle-exclamation fa-xs"></i>
-                                </div>
-                                <div>
-                                    <p class="mb-0 small fw-semibold">System Alert</p>
-                                    <p class="mb-0 small text-muted" style="font-size: 0.75rem;">Scheduled maintenance tomorrow.</p>
-                                    <p class="mb-0 text-muted" style="font-size: 0.7rem;">Yesterday</p>
-                                </div>
-                            </a>
-                        </li>
+                        <div id="notificationList">
+                        {% for notification in user_notifications %}
+                            <li>
+                                <a class="dropdown-item d-flex align-items-start gap-2 py-2 notification-item" 
+                                   href="#" 
+                                   onclick="markAsRead(event, {{ notification.id }}, '{{ notification.link|default:'' }}')">
+                                    <div class="bg-{{ notification.notification_type }} bg-opacity-10 text-{{ notification.notification_type }} rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px;">
+                                        {% if notification.notification_type == 'success' %}
+                                            <i class="fa-solid fa-check fa-xs"></i>
+                                        {% elif notification.notification_type == 'danger' %}
+                                            <i class="fa-solid fa-triangle-exclamation fa-xs"></i>
+                                        {% elif notification.notification_type == 'warning' %}
+                                            <i class="fa-solid fa-exclamation fa-xs"></i>
+                                        {% else %}
+                                            <i class="fa-solid fa-info fa-xs"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <p class="mb-0 small fw-semibold text-wrap">{{ notification.message }}</p>
+                                        <p class="mb-0 text-muted" style="font-size: 0.7rem;">{{ notification.created_at|timesince }} ago</p>
+                                    </div>
+                                    <span class="d-inline-block rounded-circle bg-primary p-1 mt-2" style="width: 8px; height: 8px;"></span>
+                                </a>
+                            </li>
+                        {% empty %}
+                            <li class="text-center py-3 text-muted small">No new notifications</li>
+                        {% endfor %}
+                        </div>
                         
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-center small text-primary fw-bold" href="#">View all notifications</a></li>
@@ -201,5 +195,42 @@
     {% endfor %}
 </div>
 {% endif %}
+
+<script>
+    function markAsRead(event, id, link) {
+        event.preventDefault();
+        fetch(`/common/notifications/${id}/read/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                if (link && link !== 'None' && link !== '') {
+                    window.location.href = link;
+                } else {
+                    location.reload();
+                }
+            }
+        });
+    }
+
+    function markAllRead() {
+        fetch(`/common/notifications/read-all/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                location.reload();
+            }
+        });
+    }
+</script>
 
 {% endblock %}

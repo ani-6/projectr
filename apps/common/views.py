@@ -3,10 +3,13 @@ import mimetypes
 from urllib.parse import unquote
 from django.conf import settings
 from django.core import signing
-from django.http import Http404, HttpResponseForbidden, FileResponse
+from django.http import Http404, HttpResponseForbidden, FileResponse, JsonResponse
 from django.views import View
+from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
+from .models import Notification
 
+# --- Existing SecureMediaView ---
 class SecureMediaView(LoginRequiredMixin, View):
     """
     View to serve media files only to authenticated users.
@@ -55,3 +58,23 @@ class SecureMediaView(LoginRequiredMixin, View):
         content_type = content_type or 'application/octet-stream'
 
         return FileResponse(open(full_path, 'rb'), content_type=content_type)
+
+
+# --- New Notification Views ---
+
+class MarkNotificationReadView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        notification = get_object_or_404(Notification, pk=pk, recipient=request.user)
+        notification.is_read = True
+        notification.save()
+        
+        # If the notification has a link, return it in the JSON response
+        return JsonResponse({
+            'status': 'success', 
+            'link': notification.link if notification.link else None
+        })
+
+class MarkAllReadView(LoginRequiredMixin, View):
+    def post(self, request):
+        request.user.notifications.filter(is_read=False).update(is_read=True)
+        return JsonResponse({'status': 'success'})

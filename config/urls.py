@@ -42,6 +42,7 @@ admin.site.site_header = "ProjectR"
 
 urlpatterns = [
     path('account/', include('apps.account.urls', namespace='account')),
+    path('common/', include('apps.common.urls', namespace='common')), # Added Common App URLs
     path('', include('apps.dashboard.urls', namespace='dashboard')),
     path('admin/', admin.site.urls),
     re_path(r'^media/(?P<path>.*)$', SecureMediaView.as_view(), name='secure_media'),
