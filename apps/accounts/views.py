@@ -17,8 +17,8 @@ from .helpers import generate_thumbnail, get_thumbnail_url, delete_old_image
 from .models import *
 
 # Create your views here.
-class registerView(View):
-    form_class = register_form
+class RegisterView(View):
+    form_class = registerForm
     initial = {'key': 'value'}
     template_name = 'accounts/register.html'
 
@@ -28,7 +28,7 @@ class registerView(View):
             return redirect('/')
 
         # else process dispatch as it otherwise normally would
-        return super(registerView, self).dispatch(request, *args, **kwargs)
+        return super(RegisterView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         form = self.form_class(initial=self.initial)
@@ -49,8 +49,8 @@ class registerView(View):
         return render(request, self.template_name, {'form': form})
 
 # Class based view that extends from the built in login view to add a remember me functionality
-class customLoginView(LoginView):
-    form_class = customAuthenticationForm
+class LoginView(LoginView):
+    form_class = authenticationForm
     template_name = 'accounts/login.html'
     redirect_authenticated_user = True
 
@@ -103,8 +103,8 @@ class ChangePasswordView(SuccessMessageMixin, PasswordChangeView):
 
 
 class SettingsView(LoginRequiredMixin, View):
-    form_class_user = updateUser_form
-    form_class_profile = updateProfile_form
+    form_class_user = updateUserForm
+    form_class_profile = updateProfileForm
     template_name = 'accounts/settings.html'
     login_url = reverse_lazy('account:login')
 

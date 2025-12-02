@@ -2,8 +2,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path, re_path
 from apps.accounts.views import (
-    registerView,
-    customLoginView,
+    RegisterView,
+    LoginView,
     LogoutUserView,
     SettingsView,
     DeleteAvatarView,
@@ -16,8 +16,8 @@ app_name = 'account'
 
 urlpatterns = [
     # Authentication
-    path('register/', registerView.as_view(), name='register'),
-    path('login/', customLoginView.as_view(), name='login'),
+    path('register/', RegisterView.as_view(), name='register'),
+    path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutUserView.as_view(), name='logout'),
     
     # Profile Management

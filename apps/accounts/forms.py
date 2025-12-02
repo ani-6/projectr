@@ -10,7 +10,7 @@ GENDER =(
         ('Other','Other')
     )
 
-class register_form(UserCreationForm):
+class registerForm(UserCreationForm):
     # fields we want to include and customize in our form
     first_name = forms.CharField(max_length=100,
                                  required=False,
@@ -54,7 +54,7 @@ class register_form(UserCreationForm):
         model = User
         fields = ['first_name', 'last_name', 'username', 'email', 'password1', 'password2']
 
-class customAuthenticationForm(AuthenticationForm):
+class authenticationForm(AuthenticationForm):
     username = forms.CharField(max_length=100,
                                required=True,
                                error_messages={'required': 'Please enter Username or Email!'},
@@ -75,7 +75,7 @@ class customAuthenticationForm(AuthenticationForm):
     class Meta:
         fields = ['username', 'password', 'remember_me']
 
-class updateUser_form(forms.ModelForm):
+class updateUserForm(forms.ModelForm):
     username = forms.CharField(max_length=100,
                                required=True,
                                disabled=True,
@@ -94,7 +94,7 @@ class updateUser_form(forms.ModelForm):
         fields = ['username', 'first_name', 'last_name', 'email']
 
 
-class updateProfile_form(forms.ModelForm):
+class updateProfileForm(forms.ModelForm):
     profile_picture = forms.ImageField(widget=forms.FileInput(attrs={'class': 'form-control','type':'file'}))
     headline = forms.CharField(max_length=100,
                                widget=forms.TextInput(attrs={'class': 'form-control'}),required=False)
