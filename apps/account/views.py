@@ -1,15 +1,11 @@
-from django.shortcuts import render
-
-# Create your views here.
+from django.shortcuts import render, redirect
 import os
-
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordResetView, LogoutView
 from django.contrib.messages.views import SuccessMessageMixin
-from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView
@@ -20,18 +16,16 @@ from .forms import *
 from .helpers import generate_thumbnail, get_thumbnail_url, delete_old_image
 from .models import *
 
-# Create your views here.
+# ... (Previous Views: RegisterView, LoginView) ...
+# Ensure RegisterView and LoginView code remains here as previously defined
 class RegisterView(View):
     form_class = registerForm
     initial = {'key': 'value'}
     template_name = 'account/register.html'
 
     def dispatch(self, request, *args, **kwargs):
-        # will redirect to the home page if a user tries to access the register page while logged in
         if request.user.is_authenticated:
             return redirect('/')
-
-        # else process dispatch as it otherwise normally would
         return super(RegisterView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -40,7 +34,6 @@ class RegisterView(View):
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-
         if form.is_valid():
             user = form.save(commit=False)
             user.save()
@@ -49,59 +42,40 @@ class RegisterView(View):
             user.groups.add(group)
             messages.success(request, f'Account created for {username}')
             return redirect('account:login')
-
         return render(request, self.template_name, {'form': form})
 
-# Class based view that extends from the built in login view to add a remember me functionality
 class LoginView(LoginView):
     form_class = authenticationForm
     template_name = 'account/login.html'
     redirect_authenticated_user = True
 
     def form_valid(self, form):
-        """
-        Called when the form is valid.
-        This method performs the login and handles session setup.
-        """
-        # 1. Log the user in
-        # form.get_user() returns the user object authenticated by the form
         user = form.get_user()
         login(self.request, user)
-
-        # 2. Session Logic
-        # Store thumbnail path in session
         if hasattr(user, 'user_profile'):
              self.request.session['user_avatar'] = get_thumbnail_url(user.user_profile)
-
-        # Handle 'Remember Me'
         remember_me = form.cleaned_data.get('remember_me')
         if not remember_me:
-            # Expire session in 10 minutes if remember me is NOT checked
             self.request.session.set_expiry(600)
             self.request.session.modified = True
         else:
-            # Keep session active (Django default is 2 weeks usually)
             self.request.session['remember_me'] = True
-
-        # 3. Redirect
         return HttpResponseRedirect(self.get_success_url())
 
 class resetPassword(SuccessMessageMixin, PasswordResetView):
+    form_class = CustomPasswordResetForm 
     template_name = 'account/password_reset.html'
     email_template_name = 'account/password_reset_email.html'
     subject_template_name = 'account/password_reset_subject'
-    success_message = "We've emailed you instructions for setting your password, " \
-                      "if an account exists with the email you entered. You should receive them shortly." \
-                      " If you don't receive an email, " \
-                      "please make sure you've entered the address you registered with, and check your spam folder."
+    success_message = "We've emailed you instructions for setting your password."
     success_url = reverse_lazy('account:login')
 
-
+# --- Updated Change Password View ---
 class ChangePasswordView(SuccessMessageMixin, PasswordChangeView):
+    form_class = CustomPasswordChangeForm # Use the new styled form
     template_name = 'account/change_password.html'
     success_message = "Successfully Changed Your Password"
     success_url = reverse_lazy('account:users-settings')
-
 
 class SettingsView(LoginRequiredMixin, View):
     form_class_user = updateUserForm
@@ -122,18 +96,11 @@ class SettingsView(LoginRequiredMixin, View):
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile = profile_form.save(commit=False)
-            
-            # Update session username in case it changed
             request.session['user_username'] = request.user.username
-
-            # Check if a new profile picture is uploaded
             if 'profile_picture' in request.FILES:
                 profile.save()
-                # Generate thumbnail and update session
                 thumb_url = generate_thumbnail(profile)
                 request.session['user_avatar'] = thumb_url
-                
-                # Optional: Delete old image if not default
                 if 'default.jpg' not in old_profile_pic:
                     thumbnail_path = os.path.join(os.path.dirname(old_profile_pic), 'thumbs', f"thumb_{os.path.basename(old_profile_pic)}")
                     delete_old_image(old_profile_pic)
@@ -144,7 +111,6 @@ class SettingsView(LoginRequiredMixin, View):
             return redirect('account:users-settings')
         
         return render(request, self.template_name, {'user_form': user_form, 'profile_form': profile_form})
-
 
 class DeleteAvatarView(LoginRequiredMixin, View):
     login_url = reverse_lazy('account:login')
@@ -157,18 +123,13 @@ class DeleteAvatarView(LoginRequiredMixin, View):
         delete_old_image(old_profile_pic)
         delete_old_image(thumbnail_path)
         profile.save()
-        
-        # Reset session avatar to default and ensure username is set
         request.session['user_avatar'] = get_thumbnail_url(profile)
-        
         messages.success(request, 'Avatar deleted successfully')
         return redirect('account:users-settings')
-
 
 class ProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'account/profile.html'
     login_url = reverse_lazy('account:login')
-
 
 class LogoutUserView(LogoutView):
     next_page = reverse_lazy('account:login')

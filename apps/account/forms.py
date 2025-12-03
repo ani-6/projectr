@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordResetForm, PasswordChangeForm
 from django.contrib.auth.models import User
 
 from .models import *
@@ -104,3 +104,21 @@ class updateProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['profile_picture', 'gender', 'headline', 'bio']
+
+class CustomPasswordResetForm(PasswordResetForm):
+    email = forms.EmailField(
+        label="Email Address",
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your registered email',
+            'autocomplete': 'email'
+        })
+    )
+
+# --- New Custom Password Change Form ---
+class CustomPasswordChangeForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Iterate over all fields to add the bootstrap class
+        for field_name in self.fields:
+            self.fields[field_name].widget.attrs['class'] = 'form-control'

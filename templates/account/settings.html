@@ -42,7 +42,12 @@
             <!-- Right Column: Account Details -->
             <div class="col-xl-8">
                 <div class="card shadow-sm">
-                    <div class="card-header">Account Details</div>
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Account Details</span>
+                        <a href="{% url 'account:change-password' %}" class="btn btn-sm btn-outline-warning">
+                            <i class="fa-solid fa-key me-1"></i> Change Password
+                        </a>
+                    </div>
                     <div class="card-body">
                         
                         <h6 class="heading-small text-muted mb-4">User Information</h6>
@@ -79,7 +84,6 @@
                                 <label class="small mb-1" for="{{ profile_form.gender.id_for_label }}">Gender</label>
                                 {{ profile_form.gender }}
                             </div>
-                            <!-- Removed File Input from here -->
                         </div>
                         <div class="mb-3">
                             <label class="small mb-1" for="{{ profile_form.bio.id_for_label }}">Bio</label>
