@@ -14,6 +14,7 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseRedirect
 
 from .forms import *
 from .helpers import generate_thumbnail, get_thumbnail_url, delete_old_image
@@ -57,35 +58,33 @@ class LoginView(LoginView):
     template_name = 'account/login.html'
     redirect_authenticated_user = True
 
-    def post(self, request, *args, **kwargs):
-        form = self.get_form()
-        if form.is_valid():
-            username_or_email = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
+    def form_valid(self, form):
+        """
+        Called when the form is valid.
+        This method performs the login and handles session setup.
+        """
+        # 1. Log the user in
+        # form.get_user() returns the user object authenticated by the form
+        user = form.get_user()
+        login(self.request, user)
 
-            # Try to authenticate using email
-            user = authenticate(request, username=username_or_email, password=password)
-            if user is None:
-                # Try to authenticate using username
-                user = authenticate(request, email=username_or_email, password=password)
+        # 2. Session Logic
+        # Store thumbnail path in session
+        if hasattr(user, 'user_profile'):
+             self.request.session['user_avatar'] = get_thumbnail_url(user.user_profile)
 
-            if user is not None:
-                login(request, user)
-                
-                # Store thumbnail path and username in session
-                request.session['user_avatar'] = get_thumbnail_url(user.user_profile)
-
-                remember_me = form.cleaned_data.get('remember_me')
-                if not remember_me:
-                    request.session.set_expiry(600)
-                    request.session.modified = True
-                else:
-                    request.session['remember_me'] = True
-                return self.form_valid(form)
-            else:
-                return self.form_invalid(form)
+        # Handle 'Remember Me'
+        remember_me = form.cleaned_data.get('remember_me')
+        if not remember_me:
+            # Expire session in 10 minutes if remember me is NOT checked
+            self.request.session.set_expiry(120)
+            self.request.session.modified = True
         else:
-            return self.form_invalid(form)
+            # Keep session active (Django default is 2 weeks usually)
+            self.request.session['remember_me'] = True
+
+        # 3. Redirect
+        return HttpResponseRedirect(self.get_success_url())
 
 class resetPassword(SuccessMessageMixin, PasswordResetView):
     template_name = 'account/password_reset.html'

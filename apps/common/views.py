@@ -78,3 +78,11 @@ class MarkAllReadView(LoginRequiredMixin, View):
     def post(self, request):
         request.user.notifications.filter(is_read=False).update(is_read=True)
         return JsonResponse({'status': 'success'})
+        
+# --- New Session Status View ---
+class SessionStatusView(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            return JsonResponse({'status': 'active'})
+        else:
+            return JsonResponse({'status': 'inactive'}, status=401)

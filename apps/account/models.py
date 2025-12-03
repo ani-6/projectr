@@ -3,8 +3,6 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
 
-# Create your models here.
-# Extending User Model Using a One-To-One Link
 class Profile(models.Model):
     GENDER =(
         ('Male','Male'),
@@ -23,11 +21,32 @@ class Profile(models.Model):
 
     @property
     def thumbnail_url(self):
-        # Check if the profile picture is set and is not default.png
         if self.profile_picture and os.path.basename(self.profile_picture.name) != 'default.jpg':
-            # Generate the thumbnail path
             thumbnail_path = settings.LOGIN_REDIRECT_URL + 'secure_media/Account/profile_images/thumbnail_' + os.path.basename(self.profile_picture.name)
             return thumbnail_path
         else:
-            # Return the original profile picture URL
             return settings.LOGIN_REDIRECT_URL + 'secure_media/' + self.profile_picture.name
+
+# --- Updated UserActivityLog ---
+class UserActivityLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activity_logs')
+    session_key = models.CharField(max_length=40, null=True, blank=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    login_time = models.DateTimeField(auto_now_add=True)
+    last_activity = models.DateTimeField(auto_now=True)  # New field to track last move
+    logout_time = models.DateTimeField(null=True, blank=True)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.login_time}"
+
+    @property
+    def duration(self):
+        # If logged out, calculate full duration
+        if self.logout_time:
+            return self.logout_time - self.login_time
+        
+        # If still active (or crashed), calculate up to last activity
+        if self.last_activity:
+            return self.last_activity - self.login_time
+            
+        return None
