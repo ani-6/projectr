@@ -77,7 +77,7 @@ class LoginView(LoginView):
         remember_me = form.cleaned_data.get('remember_me')
         if not remember_me:
             # Expire session in 10 minutes if remember me is NOT checked
-            self.request.session.set_expiry(120)
+            self.request.session.set_expiry(600)
             self.request.session.modified = True
         else:
             # Keep session active (Django default is 2 weeks usually)
