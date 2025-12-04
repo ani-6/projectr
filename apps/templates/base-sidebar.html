@@ -7,176 +7,179 @@
 
 <div class="dashboard-container">
     
+    <!-- Mobile Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-    <div class="sidebar d-flex flex-column flex-shrink-0 text-white" id="sidebarMenu">
-        <div class="sidebar-header p-4">
-            <a href="{% url 'dashboard:home' %}" class="d-flex align-items-center text-white text-decoration-none">
-                <div class="brand-icon bg-primary text-white rounded-3 d-flex align-items-center justify-content-center me-3 shadow-sm">
+    <!-- Sidebar -->
+    <div class="sidebar d-flex flex-column flex-shrink-0" id="sidebarMenu">
+        <div class="sidebar-header d-flex align-items-center justify-content-center border-bottom border-light pb-4 mx-3">
+            <div class="d-flex align-items-center gap-2 text-decoration-none">
+                <div class="bg-primary text-white rounded-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px;">
                     <i class="fa-solid fa-layer-group"></i>
                 </div>
-                <span class="fs-4 fw-bold tracking-tight">ProjectR</span>
-            </a>
-            <button type="button" class="btn-close btn-close-white d-lg-none position-absolute top-0 end-0 m-3" aria-label="Close" onclick="toggleSidebar()"></button>
+                <span class="fs-4 fw-bold text-dark tracking-tight" style="color: var(--text-main);">ProjectR</span>
+            </div>
+            <button type="button" class="btn-close d-lg-none position-absolute top-0 end-0 m-3" aria-label="Close" onclick="toggleSidebar()"></button>
         </div>
 
-        <div class="sidebar-body flex-grow-1 overflow-y-auto custom-scrollbar px-3">
-            <ul class="nav nav-pills flex-column gap-2 mb-auto">
+        <div class="sidebar-body flex-grow-1 overflow-y-auto custom-scrollbar py-3">
+            <ul class="nav flex-column gap-2 mb-auto">
+                <div class="nav-section-title">Main Menu</div>
                 <li class="nav-item">
-                    <span class="text-uppercase text-white-50 fw-bold small px-3 mb-2 d-block mt-2" style="font-size: 0.75rem; letter-spacing: 1px;">Menu</span>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'dashboard:home' %}" class="nav-link sidebar-link {% if request.resolver_match.view_name == 'dashboard:home' %}active{% endif %}" aria-current="page">
-                        <i class="fa-solid fa-house fa-fw me-3"></i> 
+                    <a href="{% url 'dashboard:home' %}" class="nav-link {% if request.resolver_match.view_name == 'dashboard:home' %}active{% endif %}">
+                        <i class="fa-solid fa-house"></i> 
                         <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{% url 'account:profile' %}" class="nav-link sidebar-link {% if request.resolver_match.view_name == 'account:profile' %}active{% endif %}">
-                        <i class="fa-solid fa-user fa-fw me-3"></i> 
+                    <a href="{% url 'account:profile' %}" class="nav-link {% if request.resolver_match.view_name == 'account:profile' %}active{% endif %}">
+                        <i class="fa-solid fa-user"></i> 
                         <span>Profile</span>
                     </a>
                 </li>
                 
-                <li class="nav-item mt-4">
-                    <span class="text-uppercase text-white-50 fw-bold small px-3 mb-2 d-block" style="font-size: 0.75rem; letter-spacing: 1px;">Preferences</span>
-                </li>
+                <div class="nav-section-title">Preferences</div>
                 <li class="nav-item">
-                    <a href="{% url 'account:users-settings' %}" class="nav-link sidebar-link {% if request.resolver_match.view_name == 'account:users-settings' %}active{% endif %}">
-                        <i class="fa-solid fa-gear fa-fw me-3"></i> 
+                    <a href="{% url 'account:users-settings' %}" class="nav-link {% if request.resolver_match.view_name == 'account:users-settings' %}active{% endif %}">
+                        <i class="fa-solid fa-gear"></i> 
                         <span>Settings</span>
                     </a>
                 </li>
             </ul>
         </div>
         
-        <div class="sidebar-footer p-3 mt-auto">
-            <div class="p-3 rounded-3 bg-white bg-opacity-10 border border-white border-opacity-10">
-                <button class="btn btn-link text-white text-decoration-none w-100 d-flex align-items-center justify-content-between p-0" id="themeToggle">
-                    <div class="d-flex align-items-center gap-2">
-                         <div class="theme-icon-wrapper d-flex align-items-center justify-content-center rounded-circle bg-dark shadow-sm" style="width: 32px; height: 32px;">
-                            <i class="fa-solid fa-moon text-warning" id="themeIcon"></i>
-                         </div>
-                         <span class="small fw-medium" id="themeText">Dark Mode</span>
-                    </div>
-                    <i class="fa-solid fa-chevron-right small opacity-50"></i>
-                </button>
-            </div>
+        <!-- Bottom User Block -->
+        <div class="p-3 mt-auto">
+             <div class="d-flex align-items-center gap-3 p-2 rounded-3" style="background: rgba(0,0,0,0.02);">
+                <img src="{{ request.user.user_profile.profile_picture.url }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                <div class="flex-grow-1 overflow-hidden">
+                    <h6 class="mb-0 small fw-bold text-truncate" style="color: var(--text-main);">{{ request.user.first_name|default:request.user.username }}</h6>
+                    <span class="text-muted small" style="font-size: 0.7rem;">Free Plan</span>
+                </div>
+                <form action="{% url 'account:logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-link text-danger p-0"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+                </form>
+             </div>
         </div>
     </div>
 
-    <div class="main-wrapper bg-body-tertiary">
-        <header class="top-bar bg-body shadow-sm">
-            
-            <div class="d-flex align-items-center gap-3 flex-grow-1">
-                <button class="btn btn-link text-body d-lg-none border-0 p-0 text-decoration-none" type="button" onclick="toggleSidebar()">
-                    <i class="fa-solid fa-bars fs-4"></i>
+    <!-- Main Content Wrapper -->
+    <div class="main-wrapper">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <!-- Left: Toggle & Title -->
+            <div class="d-flex align-items-center gap-3" style="min-width: 0;">
+                <button class="btn d-lg-none shadow-sm rounded-circle p-2 flex-shrink-0" type="button" onclick="toggleSidebar()" style="width: 40px; height: 40px;">
+                    <i class="fa-solid fa-bars"></i>
                 </button>
-
-                <form class="d-none d-lg-block position-relative w-100" style="max-width: 400px;">
-                    <span class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted search-icon-container">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </span>
-                    <input type="search" class="form-control ps-5 rounded-pill" placeholder="Search..." aria-label="Search">
-                </form>
+                <!-- Title Only -->
+                <h4 class="fw-bold mb-0 text-truncate" style="color: var(--text-main);">{% block page_title %}Main Dashboard{% endblock %}</h4>
             </div>
 
-            <div class="d-flex align-items-center gap-4">
+            <!-- Right: Actions -->
+            <div class="d-flex align-items-center gap-2 gap-md-3 flex-shrink-0">
                 
+                <!-- Desktop Search -->
+                <div class="search-bar-container d-none d-md-flex">
+                    <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                    <input type="search" placeholder="Search..." aria-label="Search">
+                </div>
+
+                <!-- Theme Toggle -->
+                <button class="btn bg-transparent rounded-circle d-flex align-items-center justify-content-center p-0" 
+                        style="width: 40px; height: 40px; border: 1px solid var(--border-color);" 
+                        id="themeToggle">
+                     <i class="fa-solid fa-moon text-muted" id="themeIcon"></i>
+                </button>
+
+                <!-- Notifications -->
                 <div class="dropdown">
-                    <a href="#" class="position-relative text-secondary text-decoration-none fs-5 hide-arrow" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fa-regular fa-bell"></i>
+                    <button class="btn bg-transparent rounded-circle position-relative p-0 d-flex align-items-center justify-content-center" 
+                            style="width: 40px; height: 40px; border: 1px solid var(--border-color);" 
+                            data-bs-toggle="dropdown">
+                        <i class="fa-regular fa-bell text-muted"></i>
                         {% if user_notifications_count > 0 %}
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.5rem; transform: translate(-50%, -20%) !important;">
-                            {{ user_notifications_count }}
-                            <span class="visually-hidden">unread messages</span>
-                        </span>
+                        <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
                         {% endif %}
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="width: 300px;">
-                        <li>
-                            <div class="d-flex justify-content-between align-items-center px-3 py-2">
-                                <h6 class="dropdown-header mb-0 p-0">Notifications</h6>
-                                <button onclick="markAllRead()" class="btn btn-link btn-sm p-0 text-decoration-none" style="font-size: 0.75rem;">Mark all read</button>
-                            </div>
-                        </li>
-                        <li><hr class="dropdown-divider m-0"></li>
-                        
-                        <div id="notificationList">
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 p-2" style="width: 300px;">
+                        <li><h6 class="dropdown-header">Notifications</h6></li>
                         {% for notification in user_notifications %}
-                            <li>
-                                <a class="dropdown-item d-flex align-items-start gap-2 py-2 notification-item" 
-                                   href="#" 
-                                   onclick="markAsRead(event, {{ notification.id }}, '{{ notification.link|default:'' }}')">
-                                    <div class="bg-{{ notification.notification_type }} bg-opacity-10 text-{{ notification.notification_type }} rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px;">
+                        <li>
+                            <a class="dropdown-item rounded-3 mb-1 p-2" href="#"
+                            onclick="markAsRead(event, {{ notification.id }}, '{{ notification.link|default:'' }}')">
+                                <div class="d-flex gap-2">
+                                    <div class="bg-secondary bg-opacity-10 text-{{ notification.notification_type }} rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px;">
                                         {% if notification.notification_type == 'success' %}
-                                            <i class="fa-solid fa-check fa-xs"></i>
+                                            <i class="fa-solid fa-check fa-xs text-info"></i>
                                         {% elif notification.notification_type == 'danger' %}
-                                            <i class="fa-solid fa-triangle-exclamation fa-xs"></i>
+                                            <i class="fa-solid fa-triangle-exclamation fa-xs text-danger"></i>
                                         {% elif notification.notification_type == 'warning' %}
-                                            <i class="fa-solid fa-exclamation fa-xs"></i>
+                                            <i class="fa-solid fa-exclamation fa-xs text-warning"></i>
                                         {% else %}
-                                            <i class="fa-solid fa-info fa-xs"></i>
+                                            <i class="fa-solid fa-info fa-xs text-info"></i>
                                         {% endif %}
+                           
                                     </div>
-                                    <div class="flex-grow-1">
-                                        <p class="mb-0 small fw-semibold text-wrap">{{ notification.message }}</p>
-                                        <p class="mb-0 text-muted" style="font-size: 0.7rem;">{{ notification.created_at|timesince }} ago</p>
+                                    <div>
+                                        <p class="mb-0 small text-wrap">{{ notification.message }}</p>
+                                        <small class="text-muted" style="font-size: 0.65rem;">{{ notification.created_at|timesince }} ago</small>
                                     </div>
-                                    <span class="d-inline-block rounded-circle bg-primary p-1 mt-2" style="width: 8px; height: 8px;"></span>
-                                </a>
-                            </li>
+                                </div>
+                            </a>
+                        </li>
                         {% empty %}
-                            <li class="text-center py-3 text-muted small">No new notifications</li>
+                        <li class="text-center p-3 text-muted small">No new notifications</li>
                         {% endfor %}
-                        </div>
-                        
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-center small text-primary fw-bold" href="{% url 'common:notification-list' %}">View all notifications</a></li>
+                        <li><a class="dropdown-item rounded-3 text-center small text-primary fw-bold" href="{% url 'common:notification-list' %}">View all notifications</a></li>
                     </ul>
                 </div>
 
+                <!-- Mobile Search Toggle -->
+                <button class="btn bg-transparent rounded-circle d-md-none d-flex align-items-center justify-content-center p-0" 
+                        style="width: 40px; height: 40px; border: 1px solid var(--border-color);" 
+                        onclick="toggleSearch()">
+                     <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                </button>
+
+                <!-- Profile Dropdown (New) -->
                 <div class="dropdown">
-                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle hide-arrow" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a href="#" class="d-block" data-bs-toggle="dropdown" aria-expanded="false">
                         {% if request.session.user_avatar %}
-                            <img src="{{ request.session.user_avatar }}" alt="User" class="profile-pic-sm">
-                        {% elif request.user.user_profile.profile_picture %}
-                            <img src="{{ request.user.user_profile.profile_picture.url }}" alt="User" class="profile-pic-sm">
+                            <img src="{{ request.session.user_avatar }}" alt="User" class="rounded-circle border border-2 border-white shadow-sm" style="width: 40px; height: 40px; object-fit: cover;">
                         {% else %}
-                            <div class="profile-pic-sm bg-secondary d-flex align-items-center justify-content-center text-white">
-                                <span class="fw-bold">{{ request.user.username|slice:":1"|upper }}</span>
-                            </div>
+                            <img src="{{ request.user.user_profile.profile_picture.url }}" alt="User" class="rounded-circle border border-2 border-white shadow-sm" style="width: 40px; height: 40px; object-fit: cover;">
                         {% endif %}
-                        </a>
-                    
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                        <li><h6 class="dropdown-header">Signed in as <br><strong>{{ request.user.username }}</strong></h6></li>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4" style="width: 100px;">
+                        <li><h6 class="dropdown-header text-truncate">Hi, {{ request.user.username }}</h6></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item" href="{% url 'account:profile' %}">
-                                <i class="fa-regular fa-user me-2 text-muted"></i> My Profile
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" href="{% url 'account:users-settings' %}">
-                                <i class="fa-solid fa-cog me-2 text-muted"></i> Settings
-                            </a>
-                        </li>
+                        <li><a class="dropdown-item rounded-3" href="{% url 'account:profile' %}"><i class="fa-regular fa-user me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item rounded-3" href="{% url 'account:users-settings' %}"><i class="fa-solid fa-gear me-2"></i>Settings</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li>
                             <form action="{% url 'account:logout' %}" method="post">
                                 {% csrf_token %}
-                                <button type="submit" class="dropdown-item text-danger">
-                                    <i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Sign out
-                                </button>
+                                <button type="submit" class="dropdown-item rounded-3 text-danger"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Logout</button>
                             </form>
                         </li>
                     </ul>
                 </div>
+
+            </div>
+
+            <!-- Mobile Search Bar (Hidden by default) -->
+            <div id="mobileSearchBar" class="position-absolute start-0 w-100 p-3 shadow-sm d-none d-md-none border-bottom" 
+                 style="top: 100%; background-color: var(--bg-card); z-index: 999;">
+                 <div class="search-bar-container w-100">
+                     <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                     <input type="search" placeholder="Search..." aria-label="Search" class="w-100">
+                 </div>
             </div>
         </header>
 
-        <main class="p-2 w-100">
+        <main class="w-100">
             {% block dashboard_content %}{% endblock %}
         </main>
     </div>
@@ -185,25 +188,15 @@
 {% if messages %}
 <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1060">
     {% for message in messages %}
-    <div class="toast border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
-        <div class="toast-header">
-            {% if 'success' in message.tags %}
-                <strong class="me-auto text-success"><i class="fa-solid fa-circle-check me-2"></i>Success</strong>
-            {% elif 'error' in message.tags or 'danger' in message.tags %}
-                <strong class="me-auto text-danger"><i class="fa-solid fa-circle-xmark me-2"></i>Error</strong>
-            {% elif 'warning' in message.tags %}
-                <strong class="me-auto text-warning"><i class="fa-solid fa-triangle-exclamation me-2"></i>Warning</strong>
-            {% elif 'info' in message.tags %}
-                <strong class="me-auto text-info"><i class="fa-solid fa-circle-info me-2"></i>Info</strong>
-            {% else %}
-                <strong class="me-auto">Notification</strong>
-            {% endif %}
-            
-            <small class="text-muted">Just now</small>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body">
-            {{ message }}
+    <div class="toast border-0 shadow-lg rounded-4 overflow-hidden" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex align-items-center p-3 border-start border-4 border-{{ message.tags|default:'primary' }}">
+            <div class="flex-shrink-0 text-{{ message.tags|default:'primary' }}">
+                <i class="fa-solid fa-circle-info fs-4"></i>
+            </div>
+            <div class="flex-grow-1 ms-3">
+                <p class="mb-0 fw-medium">{{ message }}</p>
+            </div>
+            <button type="button" class="btn-close ms-2" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
     </div>
     {% endfor %}

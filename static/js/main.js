@@ -12,6 +12,19 @@ function toggleSidebar() {
     }
 }
 
+// --- Mobile Search Toggle Logic ---
+function toggleSearch() {
+    const searchBar = document.getElementById('mobileSearchBar');
+    if (searchBar.classList.contains('d-none')) {
+        searchBar.classList.remove('d-none');
+        // Optional: Auto focus the input when opened
+        const input = searchBar.querySelector('input');
+        if (input) input.focus();
+    } else {
+        searchBar.classList.add('d-none');
+    }
+}
+
 // --- Dark/Light Mode Logic ---
 const toggleButton = document.getElementById('themeToggle');
 const themeIcon = document.getElementById('themeIcon');
@@ -52,11 +65,13 @@ systemPrefersDark.addEventListener('change', (e) => {
 });
 
 // 4. Toggle button (Manual override)
-toggleButton.addEventListener('click', () => {
-    const currentTheme = htmlElement.getAttribute('data-bs-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme, true); // Save to storage as manual override
-});
+if (toggleButton) {
+    toggleButton.addEventListener('click', () => {
+        const currentTheme = htmlElement.getAttribute('data-bs-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        setTheme(newTheme, true); // Save to storage as manual override
+    });
+}
 
 // --- Initialize Toasts (Auto-Show) ---
 document.addEventListener('DOMContentLoaded', function () {
