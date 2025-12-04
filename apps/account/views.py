@@ -56,7 +56,8 @@ class LoginView(LoginView):
              self.request.session['user_avatar'] = get_thumbnail_url(user.user_profile)
         remember_me = form.cleaned_data.get('remember_me')
         if not remember_me:
-            self.request.session.set_expiry(600)
+            # Use the setting instead of hardcoded 600
+            self.request.session.set_expiry(settings.SESSION_IDLE_TIMEOUT)
             self.request.session.modified = True
         else:
             self.request.session['remember_me'] = True
