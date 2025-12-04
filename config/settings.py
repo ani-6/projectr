@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',  # Added CORS headers app
     'apps.account',
     'apps.dashboard',
     'apps.common', # Registered the common app
@@ -47,6 +48,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # Added CORS Middleware (Must be at the top)
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -178,3 +180,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # True: URLs are obfuscated (signed). False: URLs are readable paths (e.g., /media/folder/file.jpg)
 # Both modes still require the user to be logged in via SecureMediaView.
 SECURE_MEDIA_ENCRYPTION = True
+
+# --- CORS Settings ---
+# Allow all origins (Great for development/public APIs)
+CORS_ALLOW_ALL_ORIGINS = True
+
+# Or restrict to specific domains (Recommended for production)
+# CORS_ALLOW_ALL_ORIGINS = False
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3000",
+#     "https://your-frontend-domain.com",
+# ]
