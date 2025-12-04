@@ -9,44 +9,63 @@
     
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-    <div class="sidebar d-flex flex-column flex-shrink-0 p-3 text-bg-dark" id="sidebarMenu">
-        <div class="d-flex align-items-center justify-content-between mb-3 mb-md-0 me-md-auto text-white text-decoration-none px-2">
-            <a href="{% url 'dashboard:home' %}" class="text-white text-decoration-none fs-4 fw-bold">
-                ProjectR
+    <div class="sidebar d-flex flex-column flex-shrink-0 text-white" id="sidebarMenu">
+        <div class="sidebar-header p-4">
+            <a href="{% url 'dashboard:home' %}" class="d-flex align-items-center text-white text-decoration-none">
+                <div class="brand-icon bg-primary text-white rounded-3 d-flex align-items-center justify-content-center me-3 shadow-sm">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <span class="fs-4 fw-bold tracking-tight">ProjectR</span>
             </a>
-            <button type="button" class="btn-close btn-close-white d-lg-none" aria-label="Close" onclick="toggleSidebar()"></button>
+            <button type="button" class="btn-close btn-close-white d-lg-none position-absolute top-0 end-0 m-3" aria-label="Close" onclick="toggleSidebar()"></button>
         </div>
-        <hr>
+
+        <div class="sidebar-body flex-grow-1 overflow-y-auto custom-scrollbar px-3">
+            <ul class="nav nav-pills flex-column gap-2 mb-auto">
+                <li class="nav-item">
+                    <span class="text-uppercase text-white-50 fw-bold small px-3 mb-2 d-block mt-2" style="font-size: 0.75rem; letter-spacing: 1px;">Menu</span>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'dashboard:home' %}" class="nav-link sidebar-link {% if request.resolver_match.view_name == 'dashboard:home' %}active{% endif %}" aria-current="page">
+                        <i class="fa-solid fa-house fa-fw me-3"></i> 
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'account:profile' %}" class="nav-link sidebar-link {% if request.resolver_match.view_name == 'account:profile' %}active{% endif %}">
+                        <i class="fa-solid fa-user fa-fw me-3"></i> 
+                        <span>Profile</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item mt-4">
+                    <span class="text-uppercase text-white-50 fw-bold small px-3 mb-2 d-block" style="font-size: 0.75rem; letter-spacing: 1px;">Preferences</span>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'account:users-settings' %}" class="nav-link sidebar-link {% if request.resolver_match.view_name == 'account:users-settings' %}active{% endif %}">
+                        <i class="fa-solid fa-gear fa-fw me-3"></i> 
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
         
-        <ul class="nav nav-pills flex-column mb-auto">
-            <li class="nav-item">
-                <a href="{% url 'dashboard:home' %}" class="nav-link text-white {% if request.resolver_match.view_name == 'dashboard:home' %}active{% endif %}" aria-current="page">
-                    <i class="fa-solid fa-house me-2" style="width: 20px; text-align: center;"></i> Dashboard
-                </a>
-            </li>
-            <li>
-                <a href="{% url 'account:profile' %}" class="nav-link text-white {% if request.resolver_match.view_name == 'account:profile' %}active{% endif %}">
-                    <i class="fa-solid fa-user me-2" style="width: 20px; text-align: center;"></i> Profile
-                </a>
-            </li>
-            <li>
-                <a href="{% url 'account:users-settings' %}" class="nav-link text-white {% if request.resolver_match.view_name == 'account:users-settings' %}active{% endif %}">
-                    <i class="fa-solid fa-gear me-2" style="width: 20px; text-align: center;"></i> Settings
-                </a>
-            </li>
-        </ul>
-        <hr>
-        
-        <div class="mb-3">
-            <button class="btn btn-outline-light w-100 d-flex align-items-center justify-content-center gap-2 btn-sm" id="themeToggle">
-                <i class="fa-solid fa-moon" id="themeIcon"></i> <span id="themeText">Switch Theme</span>
-            </button>
+        <div class="sidebar-footer p-3 mt-auto">
+            <div class="p-3 rounded-3 bg-white bg-opacity-10 border border-white border-opacity-10">
+                <button class="btn btn-link text-white text-decoration-none w-100 d-flex align-items-center justify-content-between p-0" id="themeToggle">
+                    <div class="d-flex align-items-center gap-2">
+                         <div class="theme-icon-wrapper d-flex align-items-center justify-content-center rounded-circle bg-dark shadow-sm" style="width: 32px; height: 32px;">
+                            <i class="fa-solid fa-moon text-warning" id="themeIcon"></i>
+                         </div>
+                         <span class="small fw-medium" id="themeText">Dark Mode</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right small opacity-50"></i>
+                </button>
+            </div>
         </div>
     </div>
 
     <div class="main-wrapper bg-body-tertiary">
-        
-        <!-- Changed bg-white to bg-body for dark mode support -->
         <header class="top-bar bg-body shadow-sm">
             
             <div class="d-flex align-items-center gap-3 flex-grow-1">
@@ -54,7 +73,6 @@
                     <i class="fa-solid fa-bars fs-4"></i>
                 </button>
 
-                <!-- Search Bar -->
                 <form class="d-none d-lg-block position-relative w-100" style="max-width: 400px;">
                     <span class="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted search-icon-container">
                         <i class="fa-solid fa-magnifying-glass"></i>
@@ -65,7 +83,6 @@
 
             <div class="d-flex align-items-center gap-4">
                 
-                <!-- Notification Dropdown -->
                 <div class="dropdown">
                     <a href="#" class="position-relative text-secondary text-decoration-none fs-5 hide-arrow" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fa-regular fa-bell"></i>
@@ -130,8 +147,7 @@
                                 <span class="fw-bold">{{ request.user.username|slice:":1"|upper }}</span>
                             </div>
                         {% endif %}
-                        <!--span class="d-none d-lg-block ms-2 fw-semibold text-body">{{ request.user.username }}</span-->
-                    </a>
+                        </a>
                     
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0">
                         <li><h6 class="dropdown-header">Signed in as <br><strong>{{ request.user.username }}</strong></h6></li>
@@ -161,13 +177,11 @@
         </header>
 
         <main class="p-2 w-100">
-            <!-- Messages (Alerts) have been moved to Toasts below -->
             {% block dashboard_content %}{% endblock %}
         </main>
     </div>
 </div>
 
-<!-- Django Messages as Toasts -->
 {% if messages %}
 <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1060">
     {% for message in messages %}

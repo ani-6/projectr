@@ -4,22 +4,23 @@
 
 {% block dashboard_content %}
 <div class="container-fluid py-3">
-    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
-        <h1 class="h3 mb-0 text-gray-800">Recent Notifications</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom border-secondary-subtle pb-2">
+        <h1 class="h3 mb-0 text-body">Recent Notifications</h1>
         <button onclick="markAllRead()" class="btn btn-sm btn-outline-secondary">
             <i class="fa-solid fa-check-double me-2"></i>Mark all as read
         </button>
     </div>
 
-    <div class="card shadow-sm border-0">
-        <div class="list-group list-group-flush">
+    <div class="card shadow-sm border-0 bg-body">
+        <div class="list-group list-group-flush rounded-3 overflow-hidden">
             {% for notification in notifications %}
             <a href="#" 
                onclick="markAsRead(event, {{ notification.id }}, '{{ notification.link|default:'' }}')"
-               class="list-group-item list-group-item-action p-4 d-flex align-items-start gap-3 {% if not notification.is_read %}bg-light{% endif %}">
+               class="list-group-item list-group-item-action p-4 d-flex align-items-start gap-3 border-secondary-subtle {% if not notification.is_read %}bg-body-tertiary{% else %}bg-body{% endif %}">
                 
-                <!-- Icon based on Type -->
-                <div class="bg-{{ notification.notification_type }} bg-opacity-10 text-{{ notification.notification_type }} rounded-circle p-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px;">
+                <div class="rounded-circle p-3 d-flex align-items-center justify-content-center flex-shrink-0 
+                            bg-{{ notification.notification_type }}-subtle text-{{ notification.notification_type }} border border-{{ notification.notification_type }}-subtle" 
+                     style="width: 48px; height: 48px;">
                     {% if notification.notification_type == 'success' %}
                         <i class="fa-solid fa-check fa-lg"></i>
                     {% elif notification.notification_type == 'danger' %}
@@ -33,31 +34,33 @@
 
                 <div class="flex-grow-1">
                     <div class="d-flex w-100 justify-content-between align-items-center mb-1">
-                        <h6 class="mb-0 fw-bold text-dark">
+                        <h6 class="mb-0 fw-bold text-body-emphasis">
                             {% if notification.notification_type == 'info' %}Information
                             {% elif notification.notification_type == 'success' %}Success
                             {% elif notification.notification_type == 'warning' %}Warning
                             {% elif notification.notification_type == 'danger' %}Alert
                             {% endif %}
                         </h6>
-                        <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
+                        <small class="text-body-secondary">{{ notification.created_at|timesince }} ago</small>
                     </div>
-                    <p class="mb-1 text-secondary">{{ notification.message }}</p>
+                    <p class="mb-1 text-body-secondary">{{ notification.message }}</p>
                     {% if notification.link %}
-                        <small class="text-primary"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i> View Details</small>
+                        <small class="text-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">
+                            <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> View Details
+                        </small>
                     {% endif %}
                 </div>
                 
                 {% if not notification.is_read %}
-                <span class="position-absolute top-50 end-0 translate-middle-y me-3 bg-primary rounded-circle" style="width: 10px; height: 10px;"></span>
+                <span class="position-absolute top-50 end-0 translate-middle-y me-3 bg-primary rounded-circle shadow-sm" style="width: 10px; height: 10px;"></span>
                 {% endif %}
             </a>
             {% empty %}
             <div class="text-center py-5">
-                <div class="mb-3 text-muted">
+                <div class="mb-3 text-body-tertiary">
                     <i class="fa-regular fa-bell-slash fa-3x"></i>
                 </div>
-                <h5 class="text-muted">No notifications found</h5>
+                <h5 class="text-body-secondary">No notifications found</h5>
             </div>
             {% endfor %}
         </div>
@@ -65,7 +68,6 @@
 </div>
 
 <script>
-    // Reuse the existing scripts from the sidebar, but ensure they are available here
     function markAsRead(event, id, link) {
         event.preventDefault();
         fetch(`/common/notifications/${id}/read/`, {

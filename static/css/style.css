@@ -6,6 +6,14 @@
 }
 
 /* --- Sidebar Styles --- */
+/* --- Layout Structure --- */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* --- Sidebar Styles --- */
 .sidebar {
     width: 280px;
     min-height: 100vh;
@@ -14,6 +22,50 @@
     transition: all 0.3s;
     display: flex;
     flex-direction: column;
+    /* Add subtle border for definition */
+    border-right: 1px solid rgba(255, 255, 255, 0.05); 
+}
+
+/* Sidebar Brand Icon */
+.brand-icon {
+    width: 40px;
+    height: 40px;
+}
+
+/* Sidebar Links */
+.sidebar-link {
+    color: rgba(255, 255, 255, 0.75) !important; /* Muted white */
+    border-radius: 8px; /* Rounded corners */
+    transition: all 0.2s ease;
+    font-weight: 500;
+    padding: 0.75rem 1rem; /* More padding */
+}
+
+.sidebar-link:hover {
+    color: #fff !important;
+    background-color: rgba(255, 255, 255, 0.08); /* Subtle white overlay */
+    transform: translateX(4px); /* Slight movement effect */
+}
+
+.sidebar-link.active {
+    color: #fff !important;
+    background-color: #0d6efd; /* Primary Color Background */
+    box-shadow: 0 4px 6px rgba(13, 110, 253, 0.3); /* Subtle Glow */
+}
+
+/* Custom Scrollbar for Sidebar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
 }
 
 /* Desktop: Sidebar is fixed */
@@ -70,6 +122,64 @@
     .sidebar-overlay.show {
         display: block;
     }
+}
+
+/* --- Top Bar (Header) Styles --- */
+.top-bar {
+    height: 70px;
+    background-color: var(--bs-body-bg); /* Use Bootstrap variable for theme adaptability */
+    border-bottom: 1px solid var(--bs-border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0.8rem;
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+    transition: background-color 0.3s ease;
+}
+
+/* --- Main Content Area --- */
+.main-wrapper {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    /* Prevent flex overflow */
+}
+
+/* Profile Image Styling */
+.profile-pic-sm {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #dee2e6;
+}
+
+/* --- Utilities --- */
+
+/* Hide Dropdown Arrow */
+.dropdown-toggle.hide-arrow::after {
+    display: none !important;
+}
+
+/* Search Bar Tweaks */
+.search-icon-container {
+    pointer-events: none; /* Allows clicking through the icon to the input if needed */
+    z-index: 5;
+}
+
+/* Ensure form controls look good in dark mode if not automatically handled */
+[data-bs-theme="dark"] .form-control {
+    background-color: #2b3035;
+    border-color: #495057;
+    color: #fff;
+}
+[data-bs-theme="dark"] .form-control:focus {
+    background-color: #2b3035;
+    border-color: #86b7fe;
+    color: #fff;
 }
 
 /* --- Top Bar (Header) Styles --- */
