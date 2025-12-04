@@ -1,26 +1,26 @@
 {% extends 'base-sidebar.html' %}
 
 {% block dashboard_content %}
-<div class="container-fluid">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">User Dashboard</h1>
+<div class="container-fluid py-3">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-3 mb-4 border-bottom">
+        <h1 class="h2 text-body">User Dashboard</h1>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
         <div class="col">
-            <div class="card h-100 shadow-sm border-0">
+            <div class="card h-100 shadow-sm border-0 bg-body">
                 <div class="card-body">
                     <h5 class="card-title text-primary"><i class="fa-solid fa-hand-sparkles me-2"></i>Welcome Back!</h5>
-                    <p class="card-text">You are logged in as <strong>{{ request.user.username }}</strong>.</p>
+                    <p class="card-text text-body-secondary">You are logged in as <strong>{{ request.user.username }}</strong>.</p>
                     <p class="text-muted small">Explore the features available to your account.</p>
                 </div>
             </div>
         </div>
         
         <div class="col">
-            <div class="card h-100 shadow-sm border-0">
+            <div class="card h-100 shadow-sm border-0 bg-body">
                 <div class="card-body">
-                    <h5 class="card-title"><i class="fa-regular fa-bell me-2"></i>Notifications</h5>
+                    <h5 class="card-title text-body"><i class="fa-regular fa-bell me-2"></i>Notifications</h5>
                     {% if user_notifications_count > 0 %}
                         <p class="card-text text-danger">You have {{ user_notifications_count }} unread notification(s).</p>
                     {% else %}
@@ -30,5 +30,29 @@
             </div>
         </div>
     </div>
+
+    <!-- Quick Links Section (List View) -->
+    {% if dashboard_links %}
+    <div class="mb-5">
+        <h5 class="text-body-secondary mb-3 fw-bold text-uppercase small" style="letter-spacing: 0.5px;">Quick Access</h5>
+        <div class="list-group shadow-sm border-0 rounded-3">
+            {% for link in dashboard_links %}
+            <a href="{{ link.url }}" class="list-group-item list-group-item-action d-flex align-items-center gap-3 p-3 border-secondary-subtle bg-body" {% if link.open_in_new_tab %}target="_blank"{% endif %}>
+                <div class="bg-primary bg-opacity-10 text-primary rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 42px; height: 42px;">
+                    <i class="{{ link.icon }} fa-lg"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="fw-bold mb-0 text-body">{{ link.title }}</h6>
+                    {% if link.description %}
+                    <p class="small text-secondary mb-0">{{ link.description }}</p>
+                    {% endif %}
+                </div>
+                <i class="fa-solid fa-chevron-right text-body-tertiary"></i>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
 </div>
 {% endblock %}
