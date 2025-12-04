@@ -22,4 +22,4 @@ class NotificationListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         # Return only notifications belonging to the current user, newest first
-        return Notification.objects.filter(recipient=self.request.user).order_by('-created_at')
+        return Notification.objects.filter(recipient=self.request.user).order_by('-created_at', '-id')
