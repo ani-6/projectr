@@ -16,20 +16,35 @@ class LoginAPIView(APIView):
     serializer_class = LoginSerializer
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
+        # Pass request context to serializer for authentication backend hooks
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        
         if serializer.is_valid():
-            user = serializer.validated_data
+            user = serializer.validated_data['user']
+            auth_mode = serializer.validated_data.get('auth_mode', 'token')
             
-            # Create or get auth token
-            token, created = Token.objects.get_or_create(user=user)
-            
-            # Optional: Log the user in for Session Authentication as well
-            login(request, user)
-            
-            return Response({
-                'token': token.key,
+            response_data = {
+                'message': 'Login successful',
                 'user': UserSerializer(user).data
-            }, status=status.HTTP_200_OK)
+            }
+            
+            # 1. Handle Session Authentication
+            # This sets the session cookie in the browser/client
+            if auth_mode == 'session' or auth_mode == 'both':
+                login(request, user)
+                response_data['auth_mode'] = 'session'
+
+            # 2. Handle Token Authentication
+            # This returns the key in the JSON response
+            if auth_mode == 'token' or auth_mode == 'both':
+                token, created = Token.objects.get_or_create(user=user)
+                response_data['token'] = token.key
+                if 'auth_mode' in response_data:
+                    response_data['auth_mode'] = 'both'
+            
+            return Response(response_data, status=status.HTTP_200_OK)
+            
+        # If validation fails, this returns the specific error (e.g., Invalid credentials)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LogoutAPIView(APIView):

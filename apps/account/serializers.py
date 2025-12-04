@@ -29,9 +29,32 @@ class RegisterSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
+    # New field to decide auth method (session, token, or both)
+    auth_mode = serializers.ChoiceField(
+        choices=['session', 'token', 'both'],
+        default='token',
+        required=False,
+        write_only=True,
+        help_text="Select authentication method: 'session', 'token', or 'both'"
+    )
 
-    def validate(self, data):
-        user = authenticate(**data)
-        if user and user.is_active:
-            return user
-        raise serializers.ValidationError("Invalid Credentials")
+    def validate(self, attrs):
+        username = attrs.get('username')
+        password = attrs.get('password')
+
+        if not username or not password:
+            raise serializers.ValidationError("Both 'username' and 'password' are required.")
+
+        # Authenticate using Django's built-in function
+        user = authenticate(request=self.context.get('request'), username=username, password=password)
+
+        if not user:
+            # This specific error helps debug 400 errors
+            raise serializers.ValidationError({"detail": "Invalid credentials. Please check your username and password."})
+        
+        if not user.is_active:
+            raise serializers.ValidationError({"detail": "User account is disabled."})
+
+        # Attach user to attrs so the view can access it
+        attrs['user'] = user
+        return attrs
