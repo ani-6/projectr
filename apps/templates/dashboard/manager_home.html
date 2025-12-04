@@ -126,58 +126,5 @@
     </style>
     {% endif %}
 
-    <!-- Recent Users Table -->
-    <div class="card border-0 shadow-sm mb-4 bg-body">
-        <div class="card-header bg-transparent py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 fw-bold text-primary">Recently Joined Users</h6>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>User</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Date Joined</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for user in recent_users %}
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    {% if user.user_profile.profile_picture %}
-                                        <img src="{{ user.user_profile.profile_picture.url }}" alt="" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
-                                    {% else %}
-                                        <div class="rounded-circle me-2 bg-secondary d-flex align-items-center justify-content-center text-white" style="width: 32px; height: 32px;">
-                                            {{ user.username|slice:":1"|upper }}
-                                        </div>
-                                    {% endif %}
-                                    <span class="fw-medium text-body">{{ user.get_full_name|default:user.username }}</span>
-                                </div>
-                            </td>
-                            <td>{{ user.email }}</td>
-                            <td>
-                                {% if user.groups.all %}
-                                    {% for group in user.groups.all %}
-                                        <span class="badge bg-info bg-opacity-10 text-info border border-info">{{ group.name }}</span>
-                                    {% endfor %}
-                                {% else %}
-                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border">User</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ user.date_joined|date:"M d, Y" }}</td>
-                            <td>
-                                <a href="#" class="btn btn-sm btn-light border"><i class="fa-solid fa-ellipsis"></i></a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
 </div>
 {% endblock %}

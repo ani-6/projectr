@@ -25,11 +25,8 @@ def manager_dashboard(request):
     # Fetch data relevant to managers
     total_users = User.objects.count()
     new_users_count = User.objects.filter(is_active=True).count()
-    recent_users = User.objects.select_related('user_profile').order_by('-date_joined')[:5]
-    
     context = {
         'total_users': total_users,
-        'new_users_count': new_users_count,
-        'recent_users': recent_users
+        'new_users_count': new_users_count
     }
     return render(request, 'dashboard/manager_home.html', context)
