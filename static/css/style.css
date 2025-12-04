@@ -1,3 +1,22 @@
+/* --- Global & Typography --- */
+:root {
+    --sidebar-width: 260px;
+    --topbar-height: 70px;
+    --primary-color: #0d6efd;
+    --card-border-radius: 12px;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #343a40;
+}
+
+[data-bs-theme="dark"] body {
+    background-color: #0f1116; /* Deep dark blue-black for modern feel */
+    color: #dee2e6;
+}
+
 /* --- Layout Structure --- */
 .dashboard-container {
     display: flex;
@@ -5,237 +24,175 @@
     overflow-x: hidden;
 }
 
-/* --- Sidebar Styles --- */
-/* --- Layout Structure --- */
-.dashboard-container {
+.main-wrapper {
+    flex-grow: 1;
     display: flex;
-    min-height: 100vh;
-    overflow-x: hidden;
+    flex-direction: column;
+    min-width: 0;
+    transition: margin-left 0.3s ease;
 }
 
 /* --- Sidebar Styles --- */
 .sidebar {
-    width: 280px;
-    min-height: 100vh;
-    background-color: #212529;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background-color: #1a1d21; /* Darker, cleaner grey */
     flex-shrink: 0;
-    transition: all 0.3s;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1040;
+    transition: transform 0.3s ease;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
     display: flex;
     flex-direction: column;
-    /* Add subtle border for definition */
-    border-right: 1px solid rgba(255, 255, 255, 0.05); 
 }
 
-/* Sidebar Brand Icon */
-.brand-icon {
-    width: 40px;
-    height: 40px;
+/* Sidebar Brand */
+.sidebar-brand {
+    height: var(--topbar-height);
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #fff;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Sidebar Links */
-.sidebar-link {
-    color: rgba(255, 255, 255, 0.75) !important; /* Muted white */
-    border-radius: 8px; /* Rounded corners */
-    transition: all 0.2s ease;
+.nav-link {
+    color: rgba(255, 255, 255, 0.65);
+    padding: 0.8rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
     font-weight: 500;
-    padding: 0.75rem 1rem; /* More padding */
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
 }
 
-.sidebar-link:hover {
-    color: #fff !important;
-    background-color: rgba(255, 255, 255, 0.08); /* Subtle white overlay */
-    transform: translateX(4px); /* Slight movement effect */
+.nav-link:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.03);
 }
 
-.sidebar-link.active {
-    color: #fff !important;
-    background-color: #0d6efd; /* Primary Color Background */
-    box-shadow: 0 4px 6px rgba(13, 110, 253, 0.3); /* Subtle Glow */
+.nav-link.active {
+    color: #fff;
+    background-color: rgba(13, 110, 253, 0.1);
+    border-left-color: var(--primary-color);
 }
 
-/* Custom Scrollbar for Sidebar */
-.custom-scrollbar::-webkit-scrollbar {
-    width: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.4);
+.nav-link i {
+    width: 20px;
+    text-align: center;
+    font-size: 1.1em;
 }
 
-/* Desktop: Sidebar is fixed */
+/* Sidebar Footer */
+.sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* --- Top Bar Styles --- */
+.top-bar {
+    height: var(--topbar-height);
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+}
+
+[data-bs-theme="dark"] .top-bar {
+    background-color: rgba(22, 25, 30, 0.8);
+    border-bottom-color: rgba(255,255,255,0.05);
+}
+
+/* --- Card Styling --- */
+.card {
+    border: none;
+    border-radius: var(--card-border-radius);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+/* --- Form Styling --- */
+.form-control, .form-select {
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    border-color: #e2e8f0;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+}
+
+[data-bs-theme="dark"] .form-control, 
+[data-bs-theme="dark"] .form-select {
+    background-color: #16191e;
+    border-color: #2d3238;
+}
+
+/* Floating Labels Tweaks */
+.form-floating > label {
+    padding-left: 1rem;
+}
+
+/* --- Responsive Sidebar --- */
 @media (min-width: 992px) {
-    .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        height: 100vh;
-        z-index: 1000;
-        overflow-y: auto; /* Allows scrolling inside the sidebar if needed */
-    }
-
-    .mobile-header {
-        display: none !important;
-    }
-
-    /* Push main content to the right */
     .main-wrapper {
-        margin-left: 280px;
-        width: calc(100% - 280px);
+        margin-left: var(--sidebar-width);
     }
 }
 
-/* Mobile: Sidebar is offcanvas (hidden by default) */
 @media (max-width: 991.98px) {
     .sidebar {
-        position: fixed;
-        top: 0;
-        left: -280px;
-        /* Hide off-screen */
-        height: 100%;
-        z-index: 1045;
+        transform: translateX(-100%);
     }
-
     .sidebar.show {
-        left: 0;
-        /* Slide in */
+        transform: translateX(0);
     }
-
-    /* Overlay when sidebar is open */
     .sidebar-overlay {
-        display: none;
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1040;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1035;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s;
     }
-
     .sidebar-overlay.show {
-        display: block;
+        opacity: 1;
+        visibility: visible;
     }
 }
 
-/* --- Top Bar (Header) Styles --- */
-.top-bar {
-    height: 70px;
-    background-color: var(--bs-body-bg); /* Use Bootstrap variable for theme adaptability */
-    border-bottom: 1px solid var(--bs-border-color);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 0.8rem;
-    position: sticky;
-    top: 0;
-    z-index: 1020;
-    transition: background-color 0.3s ease;
-}
-
-/* --- Main Content Area --- */
-.main-wrapper {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    /* Prevent flex overflow */
-}
-
-/* Profile Image Styling */
-.profile-pic-sm {
-    width: 40px;
-    height: 40px;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 2px solid #dee2e6;
-}
-
 /* --- Utilities --- */
-
-/* Hide Dropdown Arrow */
-.dropdown-toggle.hide-arrow::after {
-    display: none !important;
+.text-muted-sm {
+    color: #6c757d;
+    font-size: 0.875rem;
 }
 
-/* Search Bar Tweaks */
-.search-icon-container {
-    pointer-events: none; /* Allows clicking through the icon to the input if needed */
-    z-index: 5;
-}
-
-/* Ensure form controls look good in dark mode if not automatically handled */
-[data-bs-theme="dark"] .form-control {
-    background-color: #2b3035;
-    border-color: #495057;
-    color: #fff;
-}
-[data-bs-theme="dark"] .form-control:focus {
-    background-color: #2b3035;
-    border-color: #86b7fe;
-    color: #fff;
-}
-
-/* --- Top Bar (Header) Styles --- */
-.top-bar {
-    height: 70px;
-    background-color: var(--bs-body-bg); /* Use Bootstrap variable for theme adaptability */
-    border-bottom: 1px solid var(--bs-border-color);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 0.8rem;
-    position: sticky;
-    top: 0;
-    z-index: 1020;
-    transition: background-color 0.3s ease;
-}
-
-/* --- Main Content Area --- */
-.main-wrapper {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    /* Prevent flex overflow */
-}
-
-/* Profile Image Styling */
 .profile-pic-sm {
-    width: 40px;
-    height: 40px;
-    object-fit: cover;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
-    border: 2px solid #dee2e6;
-}
-
-/* --- Utilities --- */
-
-/* Hide Dropdown Arrow */
-.dropdown-toggle.hide-arrow::after {
-    display: none !important;
-}
-
-/* Search Bar Tweaks */
-.search-icon-container {
-    pointer-events: none; /* Allows clicking through the icon to the input if needed */
-    z-index: 5;
-}
-
-/* Ensure form controls look good in dark mode if not automatically handled */
-[data-bs-theme="dark"] .form-control {
-    background-color: #2b3035;
-    border-color: #495057;
-    color: #fff;
-}
-[data-bs-theme="dark"] .form-control:focus {
-    background-color: #2b3035;
-    border-color: #86b7fe;
-    color: #fff;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }

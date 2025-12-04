@@ -1,58 +1,59 @@
 {% extends 'base-sidebar.html' %}
 
+{% block page_title %}Overview{% endblock %}
+
 {% block dashboard_content %}
-<div class="container-fluid py-3">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-3 mb-4 border-bottom">
-        <h1 class="h2 text-body">User Dashboard</h1>
+<div class="row g-4 mb-4">
+    <!-- Welcome Card -->
+    <div class="col-md-8">
+        <div class="card card-hover h-100 border-0 bg-primary text-white overflow-hidden position-relative">
+            <div class="card-body p-4 position-relative z-1">
+                <h3 class="fw-bold mb-2">Welcome back, {{ request.user.first_name|default:request.user.username }}!</h3>
+                <p class="opacity-75 mb-0" style="max-width: 80%;">You have <strong>{{ user_notifications_count }}</strong> new notifications awaiting your action today.</p>
+            </div>
+            <!-- Decorative Circle -->
+            <div class="position-absolute top-0 end-0 translate-middle rounded-circle bg-white opacity-10" style="width: 200px; height: 200px; margin-top: -50px; margin-right: -50px;"></div>
+        </div>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
-        <div class="col">
-            <div class="card h-100 shadow-sm border-0 bg-body">
-                <div class="card-body">
-                    <h5 class="card-title text-primary"><i class="fa-solid fa-hand-sparkles me-2"></i>Welcome Back!</h5>
-                    <p class="card-text text-body-secondary">You are logged in as <strong>{{ request.user.username }}</strong>.</p>
-                    <p class="text-muted small">Explore the features available to your account.</p>
+    <!-- Notification Stat -->
+    <div class="col-md-4">
+        <div class="card card-hover h-100 border-0">
+            <div class="card-body p-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <h6 class="text-muted text-uppercase fw-bold small mb-1">Notifications</h6>
+                    <h2 class="mb-0 fw-bold">{{ user_notifications_count }}</h2>
+                </div>
+                <div class="bg-warning bg-opacity-10 text-warning rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                    <i class="fa-regular fa-bell fs-5"></i>
                 </div>
             </div>
         </div>
-        
-        <div class="col">
-            <div class="card h-100 shadow-sm border-0 bg-body">
-                <div class="card-body">
-                    <h5 class="card-title text-body"><i class="fa-regular fa-bell me-2"></i>Notifications</h5>
-                    {% if user_notifications_count > 0 %}
-                        <p class="card-text text-danger">You have {{ user_notifications_count }} unread notification(s).</p>
-                    {% else %}
-                        <p class="card-text text-success">You are all caught up!</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
     </div>
-
-    <!-- Quick Links Section (List View) -->
-    {% if dashboard_links %}
-    <div class="mb-5">
-        <h5 class="text-body-secondary mb-3 fw-bold text-uppercase small" style="letter-spacing: 0.5px;">Quick Access</h5>
-        <div class="list-group shadow-sm border-0 rounded-3">
-            {% for link in dashboard_links %}
-            <a href="{{ link.url }}" class="list-group-item list-group-item-action d-flex align-items-center gap-3 p-3 border-secondary-subtle bg-body" {% if link.open_in_new_tab %}target="_blank"{% endif %}>
-                <div class="bg-primary bg-opacity-10 text-primary rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 42px; height: 42px;">
-                    <i class="{{ link.icon }} fa-lg"></i>
-                </div>
-                <div class="flex-grow-1">
-                    <h6 class="fw-bold mb-0 text-body">{{ link.title }}</h6>
-                    {% if link.description %}
-                    <p class="small text-secondary mb-0">{{ link.description }}</p>
-                    {% endif %}
-                </div>
-                <i class="fa-solid fa-chevron-right text-body-tertiary"></i>
-            </a>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-
 </div>
+
+<!-- Quick Actions -->
+{% if dashboard_links %}
+<h6 class="text-muted fw-bold text-uppercase small mb-3 ps-1">Quick Access</h6>
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+    {% for link in dashboard_links %}
+    <div class="col">
+        <a href="{{ link.url }}" class="card card-hover h-100 text-decoration-none border-0" {% if link.open_in_new_tab %}target="_blank"{% endif %}>
+            <div class="card-body p-4 d-flex align-items-start gap-3">
+                <div class="bg-primary bg-opacity-10 text-primary rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px;">
+                    <i class="{{ link.icon }} fs-5"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold text-body mb-1">{{ link.title }}</h6>
+                    {% if link.description %}
+                    <p class="small text-muted mb-0 line-clamp-2">{{ link.description }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
 {% endblock %}

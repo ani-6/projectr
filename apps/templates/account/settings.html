@@ -1,96 +1,102 @@
 {% extends 'base-sidebar.html' %}
 
-{% block dashboard_content %}
-<div class="container py-3">
-    <h1 class="h3 mb-4 text-gray-800">Account Settings</h1>
-    
-    <!-- Hidden Form for Deletion (Outside the main form) -->
-    <form id="deleteAvatarForm" method="post" action="{% url 'account:delete-avatar' %}">
-        {% csrf_token %}
-    </form>
+{% block page_title %}Settings{% endblock %}
 
-    <!-- Main Update Form (Wraps both columns) -->
+{% block dashboard_content %}
+<div class="container-fluid px-0" style="max-width: 1000px;">
+    
+    <form id="deleteAvatarForm" method="post" action="{% url 'account:delete-avatar' %}">{% csrf_token %}</form>
+
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <div class="row">
-            <!-- Left Column: Profile Picture -->
-            <div class="col-xl-4">
-                <div class="card mb-4 mb-xl-0 shadow-sm">
-                    <div class="card-header">Profile Picture</div>
-                    <div class="card-body text-center">
-                        <!-- Profile Image with ID for Preview -->
-                        <img id="avatarPreview" class="img-account-profile rounded-circle mb-3" 
-                             src="{{ request.user.user_profile.profile_picture.url }}" 
-                             alt="Profile Picture" 
-                             style="width: 150px; height: 150px; object-fit: cover; border: 4px solid #f8f9fa;">
+        
+        <div class="row g-4">
+            <!-- Left Column: Avatar -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm text-center">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold mb-4">Profile Picture</h6>
                         
-                        <div class="small font-italic text-muted mb-3">JPG or PNG no larger than 5 MB</div>
-                        
-                        <!-- File Input Moved Here -->
-                        <div class="mb-3 px-3">
-                            {{ profile_form.profile_picture }}
+                        <div class="position-relative d-inline-block mb-3">
+                            <img id="avatarPreview" class="rounded-circle object-fit-cover shadow-sm border" 
+                                 src="{{ request.user.user_profile.profile_picture.url }}" 
+                                 alt="Profile Picture" 
+                                 style="width: 150px; height: 150px;">
                         </div>
 
-                        <!-- Delete Button Linked to Hidden Form -->
-                        <button class="btn btn-danger btn-sm" type="submit" form="deleteAvatarForm">
-                            <i class="fa-solid fa-trash me-2"></i>Delete Avatar
+                        <div class="mb-3">
+                            {{ profile_form.profile_picture }}
+                            <small class="text-muted d-block mt-2">JPG or PNG, max 5MB</small>
+                        </div>
+
+                        {% if '_default.jpg' not in request.user.user_profile.profile_picture.url %}
+                        <button class="btn btn-outline-danger btn-sm w-100" type="submit" form="deleteAvatarForm">
+                            <i class="fa-regular fa-trash-can me-2"></i>Remove Photo
                         </button>
+                        {% endif %}
                     </div>
                 </div>
             </div>
 
-            <!-- Right Column: Account Details -->
-            <div class="col-xl-8">
-                <div class="card shadow-sm">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span>Account Details</span>
-                        <a href="{% url 'account:change-password' %}" class="btn btn-sm btn-outline-warning">
-                            <i class="fa-solid fa-key me-1"></i> Change Password
+            <!-- Right Column: Forms -->
+            <div class="col-lg-8">
+                <!-- Basic Info -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom border-light p-3 d-flex justify-content-between align-items-center">
+                        <h6 class="fw-bold mb-0">Account Information</h6>
+                        <a href="{% url 'account:change-password' %}" class="btn btn-sm btn-light text-muted border">
+                            <i class="fa-solid fa-key me-1"></i> Password
                         </a>
                     </div>
-                    <div class="card-body">
-                        
-                        <h6 class="heading-small text-muted mb-4">User Information</h6>
-                        <div class="row gx-3 mb-3">
+                    <div class="card-body p-4">
+                        <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label class="small mb-1" for="{{ user_form.username.id_for_label }}">Username</label>
-                                {{ user_form.username }}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="small mb-1" for="{{ user_form.email.id_for_label }}">Email</label>
-                                {{ user_form.email }}
-                            </div>
-                        </div>
-                        <div class="row gx-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="small mb-1" for="{{ user_form.first_name.id_for_label }}">First Name</label>
+                                <label class="form-label small text-muted">First Name</label>
                                 {{ user_form.first_name }}
                             </div>
                             <div class="col-md-6">
-                                <label class="small mb-1" for="{{ user_form.last_name.id_for_label }}">Last Name</label>
+                                <label class="form-label small text-muted">Last Name</label>
                                 {{ user_form.last_name }}
                             </div>
                         </div>
-
-                        <hr class="my-4">
-
-                        <h6 class="heading-small text-muted mb-4">Profile Information</h6>
-                        <div class="mb-3">
-                            <label class="small mb-1" for="{{ profile_form.headline.id_for_label }}">Headline</label>
-                            {{ profile_form.headline }}
-                        </div>
-                        <div class="row gx-3 mb-3">
+                        <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="small mb-1" for="{{ profile_form.gender.id_for_label }}">Gender</label>
-                                {{ profile_form.gender }}
+                                <label class="form-label small text-muted">Username</label>
+                                {{ user_form.username }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-muted">Email Address</label>
+                                {{ user_form.email }}
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Profile Details -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom border-light p-3">
+                        <h6 class="fw-bold mb-0">Public Profile</h6>
+                    </div>
+                    <div class="card-body p-4">
                         <div class="mb-3">
-                            <label class="small mb-1" for="{{ profile_form.bio.id_for_label }}">Bio</label>
+                            <label class="form-label small text-muted">Headline</label>
+                            {{ profile_form.headline }}
+                            <div class="form-text">A brief description of who you are.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Gender</label>
+                            {{ profile_form.gender }}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small text-muted">Bio</label>
                             {{ profile_form.bio }}
                         </div>
 
-                        <button class="btn btn-primary" type="submit">Save Changes</button>
+                        <div class="d-flex justify-content-end">
+                            <button class="btn btn-primary px-4 fw-medium" type="submit">Save Changes</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -99,23 +105,13 @@
 </div>
 
 <script>
-    // Image Preview Logic
-    document.addEventListener('DOMContentLoaded', function() {
-        const profileInput = document.getElementById('id_profile_picture');
-        const avatarPreview = document.getElementById('avatarPreview');
-
-        if (profileInput && avatarPreview) {
-            profileInput.addEventListener('change', function(event) {
-                const file = event.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        avatarPreview.src = e.target.result;
-                    }
-                    reader.readAsDataURL(file);
-                }
-            });
+    document.getElementById('id_profile_picture').onchange = function (evt) {
+        var tgt = evt.target || window.event.srcElement, files = tgt.files;
+        if (FileReader && files && files.length) {
+            var fr = new FileReader();
+            fr.onload = function () { document.getElementById('avatarPreview').src = fr.result; }
+            fr.readAsDataURL(files[0]);
         }
-    });
+    }
 </script>
 {% endblock %}
