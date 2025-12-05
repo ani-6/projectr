@@ -1,0 +1,346 @@
+{% extends 'base-sidebar.html' %}
+{% load static %}
+
+{% block page_title %}Messages{% endblock %}
+
+{% block dashboard_content %}
+<div class="chat-container h-100 pb-3">
+    <div class="card border-0 shadow-sm h-100 overflow-hidden" style="border-radius: 20px;">
+        <div class="row g-0 h-100">
+            
+            <!-- Sidebar / User List -->
+            <div class="col-md-4 col-lg-3 border-end h-100 d-flex flex-column bg-light-subtle" id="chatSidebar">
+                <!-- Search -->
+                <div class="p-3 border-bottom bg-white">
+                    <div class="position-relative">
+                        <i class="fa-solid fa-magnifying-glass position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                        <input type="text" id="userSearchInput" class="form-control rounded-pill ps-5 bg-light border-0" placeholder="Search people...">
+                    </div>
+                </div>
+                
+                <!-- List Header (Dynamic) -->
+                <div class="px-3 pt-3 pb-1">
+                    <small class="text-uppercase fw-bold text-muted small" id="listTitle">Recent Chats</small>
+                </div>
+
+                <!-- Users List -->
+                <div class="flex-grow-1 overflow-y-auto custom-scrollbar p-2" id="userListContainer">
+                    <div class="text-center py-4 text-muted small">
+                        <div class="spinner-border spinner-border-sm text-primary mb-2" role="status"></div>
+                        <p>Loading chats...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Area -->
+            <div class="col-md-8 col-lg-9 h-100 d-flex flex-column bg-white d-none d-md-flex" id="chatWindow">
+                
+                <!-- Chat Header -->
+                <div class="p-3 border-bottom d-flex align-items-center justify-content-between bg-white z-1 shadow-sm header-height">
+                    <div class="d-flex align-items-center gap-3">
+                        <!-- Mobile Back Button -->
+                        <button class="btn btn-light rounded-circle d-md-none me-1" onclick="toggleChatMobile(false)">
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                        
+                        <div class="position-relative">
+                            <img id="chatHeaderAvatar" src="/media/Account/profile_images/default.jpg" class="rounded-circle object-fit-cover border" width="45" height="45">
+                            <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-light rounded-circle"></span>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold text-dark" id="chatHeaderName">Select a chat</h6>
+                            <small class="text-muted" id="chatHeaderRole">To start messaging</small>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-light rounded-circle text-muted"><i class="fa-solid fa-phone"></i></button>
+                        <button class="btn btn-light rounded-circle text-muted"><i class="fa-solid fa-video"></i></button>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                <div class="flex-grow-1 overflow-y-auto p-4 custom-scrollbar" id="messagesContainer" style="background-color: #f8f9fa;">
+                    <!-- Placeholder State -->
+                    <div class="h-100 d-flex flex-column align-items-center justify-content-center text-muted opacity-50" id="emptyState">
+                        <i class="fa-regular fa-comments" style="font-size: 4rem;"></i>
+                        <p class="mt-3 fw-medium">Select a conversation or search for a user</p>
+                    </div>
+                </div>
+
+                <!-- Input Area -->
+                <div class="p-3 border-top bg-white input-area-height">
+                    <form id="chatForm" class="d-flex gap-2 align-items-center">
+                        <button type="button" class="btn btn-light rounded-circle text-secondary flex-shrink-0"><i class="fa-solid fa-paperclip"></i></button>
+                        <input type="text" id="messageInput" class="form-control rounded-pill bg-light border-0 px-4 py-2" placeholder="Type a message..." disabled autocomplete="off">
+                        <button type="submit" class="btn btn-primary rounded-circle shadow-sm flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Responsive Layout Fixes */
+    .chat-container { 
+        height: calc(100vh - 120px); 
+    }
+    
+    @media (max-width: 768px) {
+        .chat-container { 
+            height: calc(100vh - 100px); /* Adjust for mobile header/nav */
+            padding-bottom: 0 !important; /* Remove bottom padding on mobile */
+        }
+        
+        /* On mobile, Sidebar and Window take full width/height when active */
+        #chatSidebar, #chatWindow {
+            width: 100% !important;
+            height: 100% !important;
+        }
+    }
+    
+    .user-item { transition: all 0.2s; cursor: pointer; border-radius: 12px; }
+    .user-item:hover { background-color: rgba(67, 97, 238, 0.05); }
+    .user-item.active { background-color: rgba(67, 97, 238, 0.1); border-left: 3px solid var(--primary-color); }
+    
+    .message-bubble { max-width: 80%; padding: 10px 16px; border-radius: 18px; position: relative; font-size: 0.95rem; word-wrap: break-word;}
+    .message-sent { background-color: var(--primary-color); color: white; border-bottom-right-radius: 4px; margin-left: auto; }
+    .message-received { background-color: white; color: var(--text-main); border-bottom-left-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border: 1px solid #eee; }
+    
+    .avatar-xs { width: 32px; height: 32px; object-fit: cover; border-radius: 50%; }
+</style>
+
+<script>
+    let activeChatSocket = null;
+    let activeUserId = null;
+    const currentUser = "{{ request.user.username }}";
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        // Initial load: Recent Contacts
+        fetchRecentContacts();
+        
+        // Search Listener
+        const searchInput = document.getElementById('userSearchInput');
+        let searchTimeout;
+
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const query = e.target.value.trim();
+            
+            // Debounce search
+            searchTimeout = setTimeout(() => {
+                if (query.length > 0) {
+                    fetchSearchResults(query);
+                } else {
+                    fetchRecentContacts();
+                }
+            }, 300);
+        });
+
+        // Form Submit
+        document.getElementById('chatForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (activeChatSocket && activeChatSocket.readyState === WebSocket.OPEN) {
+                if (message) {
+                    activeChatSocket.send(JSON.stringify({
+                        'message': message
+                    }));
+                    input.value = '';
+                }
+            } else {
+                console.warn("Socket is not open. State:", activeChatSocket ? activeChatSocket.readyState : 'NULL');
+                alert("Connection lost. Please refresh or select the chat again.");
+            }
+        });
+    });
+
+    // --- Mode 1: Fetch Recent Contacts (Default) ---
+    function fetchRecentContacts() {
+        document.getElementById('listTitle').textContent = 'Recent Chats';
+        
+        fetch(`/chat/api/recent/`)
+            .then(res => res.json())
+            .then(data => {
+                renderUserList(data.users, 'No recent conversations');
+            });
+    }
+
+    // --- Mode 2: Fetch Search Results ---
+    function fetchSearchResults(query) {
+        document.getElementById('listTitle').textContent = 'Search Results';
+        
+        fetch(`/chat/api/users/?q=${query}`)
+            .then(res => res.json())
+            .then(data => {
+                renderUserList(data.users, 'No users found matching "' + query + '"');
+            });
+    }
+
+    // --- Render Helper ---
+    function renderUserList(users, emptyMessage) {
+        const container = document.getElementById('userListContainer');
+        container.innerHTML = '';
+        
+        if (users.length === 0) {
+            container.innerHTML = `<div class="text-center py-4 text-muted small">${emptyMessage}</div>`;
+            return;
+        }
+
+        users.forEach(user => {
+            const isActive = user.id === activeUserId ? 'active' : '';
+            const roleBadge = user.role === 'Managers' ? '<span class="badge bg-warning text-dark ms-2" style="font-size: 0.6rem;">Manager</span>' : '';
+            
+            // Format timestamp if available
+            let timeDisplay = '';
+            if (user.timestamp) {
+                timeDisplay = `<small class="text-muted" style="font-size: 0.7rem;">${user.timestamp}</small>`;
+            }
+
+            const html = `
+                <div class="user-item p-3 mb-1 d-flex align-items-center gap-3 ${isActive}" onclick="openChat(${user.id}, '${user.username}', '${user.full_name}', '${user.role}', '${user.avatar}')">
+                    <div class="position-relative flex-shrink-0">
+                        <img src="${user.avatar}" class="rounded-circle object-fit-cover border" width="45" height="45">
+                    </div>
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <h6 class="mb-0 fw-bold text-dark text-truncate" style="font-size: 0.95rem;">${user.full_name}</h6>
+                            ${timeDisplay || roleBadge}
+                        </div>
+                        <p class="mb-0 text-muted small text-truncate" style="font-size: 0.8rem;">${user.last_message}</p>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+        });
+    }
+
+    // --- Chat Logic ---
+    // --- Chat Logic ---
+    function openChat(userId, username, fullName, role, avatar) {
+        if (activeUserId === userId) {
+            // If already active, just show window (useful for mobile)
+            toggleChatMobile(true);
+            return; 
+        }
+        
+        activeUserId = userId;
+        
+        // Update UI Header
+        document.getElementById('chatHeaderName').textContent = fullName;
+        document.getElementById('chatHeaderRole').textContent = role;
+        document.getElementById('chatHeaderAvatar').src = avatar;
+        
+        // Disable input initially while connecting
+        const input = document.getElementById('messageInput');
+        input.disabled = true;
+        input.placeholder = "Connecting...";
+        input.value = ''; // Clear previous input
+        
+        // Show Chat Window (Mobile)
+        toggleChatMobile(true);
+
+        // Highlight Sidebar Item
+        document.querySelectorAll('.user-item').forEach(el => el.classList.remove('active'));
+        
+        const msgContainer = document.getElementById('messagesContainer');
+        // Clear previous messages and show spinner
+        msgContainer.innerHTML = '<div class="d-flex justify-content-center pt-5"><div class="spinner-border text-primary"></div></div>';
+
+        // Gracefully close existing socket
+        if (activeChatSocket) {
+            // Remove handlers to prevent old socket from updating UI on close
+            activeChatSocket.onclose = null;
+            activeChatSocket.onmessage = null;
+            activeChatSocket.onerror = null;
+            activeChatSocket.onopen = null;
+            activeChatSocket.close();
+            activeChatSocket = null; // Ensure variable is cleared
+        }
+
+        // Fetch History
+        fetch(`/chat/api/history/${userId}/`)
+            .then(res => res.json())
+            .then(data => {
+                // Ensure we are still on the same user
+                if (activeUserId !== userId) return;
+
+                msgContainer.innerHTML = ''; // Clear spinner
+                
+                if(data.messages && data.messages.length === 0) {
+                     msgContainer.innerHTML = '<div class="h-100 d-flex flex-column align-items-center justify-content-center text-muted opacity-50"><i class="fa-regular fa-comments" style="font-size: 3rem;"></i><p class="mt-3 small">No messages yet. Say hello! 👋</p></div>';
+                } else if (data.messages) {
+                    data.messages.forEach(msg => appendMessage(msg));
+                    scrollToBottom();
+                }
+            })
+            .catch(err => {
+                if (activeUserId !== userId) return;
+                console.error("Error fetching history:", err);
+                msgContainer.innerHTML = '<div class="text-center pt-5 text-danger small">Failed to load history</div>';
+            });
+
+        // Init WebSocket
+        const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+        const socketUrl = protocol + window.location.host + '/ws/chat/' + userId + '/';
+        
+        console.log("Connecting to WebSocket:", socketUrl);
+        
+        // Create new socket
+        const newSocket = new WebSocket(socketUrl);
+        activeChatSocket = newSocket;
+
+        newSocket.onopen = function(e) {
+            // Verify this is still the active socket
+            if (activeChatSocket !== newSocket) return;
+            
+            console.log("Chat socket connected");
+            input.disabled = false;
+            input.placeholder = "Type a message...";
+            input.focus();
+        };
+
+        newSocket.onmessage = function(e) {
+            if (activeChatSocket !== newSocket) return;
+            
+            const data = JSON.parse(e.data);
+            
+            // Remove "No messages" placeholder if it exists (check by class or content)
+            const emptyState = msgContainer.querySelector('.fa-comments');
+            if (emptyState) {
+                msgContainer.innerHTML = '';
+            }
+
+            appendMessage({
+                message: data.message,
+                username: data.username,
+                avatar: data.avatar,
+                is_me: data.username === currentUser,
+                timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            });
+            scrollToBottom();
+        };
+
+        newSocket.onclose = function(e) {
+            // Only show disconnected if this is still the active socket intended for this user
+            if (activeChatSocket !== newSocket) return;
+            
+            console.warn('Chat socket closed', e.code, e.reason);
+            input.disabled = true;
+            input.placeholder = "Disconnected";
+        };
+
+        newSocket.onerror = function(err) {
+            if (activeChatSocket !== newSocket) return;
+            
+            console.error('Chat socket error:', err);
+            input.disabled = true;
+            input.placeholder = "Error connecting";
+        };
+    }
+</script>
+{% endblock %}

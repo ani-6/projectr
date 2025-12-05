@@ -32,23 +32,26 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne', # Must be at the top for Channels
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',  # Added CORS headers app
+    'corsheaders',
     'apps.account',
     'apps.dashboard',
-    'apps.common', # Registered the common app
+    'apps.common',
+    'apps.chat', # New Chat App
     'rest_framework',
     'rest_framework.authtoken',
     'drf_yasg',
+    'channels', # Django Channels
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # Added CORS Middleware (Must be at the top)
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -93,7 +96,16 @@ DATABASES = {
     }
 }
 
-# Add this configuration at the bottom of the file
+# Channels Layer (Redis)
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+    },
+}
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
@@ -103,9 +115,6 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
-
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -147,7 +156,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static/"),
 ]
 
-# Configure Storages (Django 4.2+)
 STORAGES = {
     "default": {
         "BACKEND": "apps.common.storage.SecureFileSystemStorage",
