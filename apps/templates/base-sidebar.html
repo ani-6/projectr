@@ -32,6 +32,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="{% url 'chat:index' %}" class="nav-link {% if request.resolver_match.view_name == 'chat:index' %}active{% endif %}">
+                        <i class="fa-solid fa-comments"></i> 
+                        <span>Chats</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{% url 'account:profile' %}" class="nav-link {% if request.resolver_match.view_name == 'account:profile' %}active{% endif %}">
                         <i class="fa-solid fa-user"></i> 
                         <span>Profile</span>

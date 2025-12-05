@@ -2,7 +2,7 @@
 :root {
     /* Layout */
     --sidebar-width: 280px;
-    --topbar-height: 80px;
+    --topbar-height: 65px;
     
     /* Aesthetics */
     --card-border-radius: 20px;
@@ -134,7 +134,6 @@ a { text-decoration: none; }
 /* --- Top Bar --- */
 .top-bar {
     position: relative; /* Added for absolute positioning of mobile search */
-    height: auto;
     min-height: var(--topbar-height);
     background: var(--bg-card);
     border-radius: var(--card-border-radius);
@@ -251,6 +250,7 @@ a { text-decoration: none; }
     
     /* Navbar touches edges on mobile */
     .top-bar {
+        padding: 0 1rem;
         border-radius: 0;
         margin-bottom: 0;
         border-bottom: 1px solid var(--border-color);
