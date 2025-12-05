@@ -1,9 +1,11 @@
 {% extends 'base-sidebar.html' %}
 
+{% block page_title %}Manager Dashboard{% endblock %}
+
 {% block dashboard_content %}
 <div class="container-fluid py-3">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-3 mb-4 border-bottom">
-        <h1 class="h2 text-primary">Manager Dashboard</h1>
+    <div class="d-flex justify-content-end align-items-center pb-3 mb-4 border-bottom">
+        <!-- Title is now handled via page_title block for consistency -->
         <div class="btn-toolbar mb-2 mb-md-0">
             <button type="button" class="btn btn-sm btn-outline-secondary">
                 <i class="fa-solid fa-download me-1"></i> Export Report

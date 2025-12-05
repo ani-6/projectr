@@ -110,6 +110,27 @@ a { text-decoration: none; }
 .nav-link.active i { color: #fff; }
 .nav-link i { font-size: 1.1rem; transition: color 0.2s; }
 
+/* --- Sidebar Overlay (Mobile) --- */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 1035; /* Below sidebar (1040) */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    backdrop-filter: blur(2px);
+    cursor: pointer;
+}
+
+.sidebar-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
 /* --- Top Bar --- */
 .top-bar {
     position: relative; /* Added for absolute positioning of mobile search */
@@ -208,6 +229,9 @@ a { text-decoration: none; }
 @media (min-width: 992px) {
     /* Main wrapper margin equals sidebar width (attached) */
     .main-wrapper { margin-left: var(--sidebar-width); }
+    
+    /* Hide overlay on desktop */
+    .sidebar-overlay { display: none !important; }
 }
 
 @media (max-width: 991.98px) {

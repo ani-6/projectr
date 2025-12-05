@@ -73,8 +73,9 @@
                 <button class="btn d-lg-none shadow-sm rounded-circle p-2 flex-shrink-0" type="button" onclick="toggleSidebar()" style="width: 40px; height: 40px;">
                     <i class="fa-solid fa-bars"></i>
                 </button>
-                <!-- Title Only -->
-                <h4 class="fw-bold mb-0 text-truncate" style="color: var(--text-main);">{% block page_title %}Main Dashboard{% endblock %}</h4>
+                
+                <!-- Title Only (Desktop: Visible, Mobile: Hidden) -->
+                <h4 id="desktopPageTitle" class="fw-bold mb-0 text-truncate d-none d-lg-block" style="color: var(--text-main);">{% block page_title %}Main Dashboard{% endblock %}</h4>
             </div>
 
             <!-- Right: Actions -->
@@ -180,6 +181,11 @@
         </header>
 
         <main class="w-100">
+            <!-- Mobile Page Title (Copied from Desktop Title via JS) -->
+            <div id="mobilePageTitleContainer" class="d-lg-none mb-4">
+                <!-- Title Injected Here -->
+            </div>
+
             {% block dashboard_content %}{% endblock %}
         </main>
     </div>
@@ -204,6 +210,7 @@
 {% endif %}
 
 <script>
+    // --- Notification Logic ---
     function markAsRead(event, id, link) {
         event.preventDefault();
         fetch(`/common/notifications/${id}/read/`, {
@@ -238,6 +245,21 @@
             }
         });
     }
+
+    // --- Responsive Title Logic ---
+    document.addEventListener('DOMContentLoaded', function() {
+        const desktopTitle = document.getElementById('desktopPageTitle');
+        const mobileContainer = document.getElementById('mobilePageTitleContainer');
+
+        if (desktopTitle && mobileContainer && desktopTitle.textContent.trim() !== "") {
+            // Create mobile title element
+            const mobileTitle = document.createElement('h2');
+            mobileTitle.className = 'fw-bold text-dark mb-0';
+            mobileTitle.innerHTML = desktopTitle.innerHTML;
+            
+            mobileContainer.appendChild(mobileTitle);
+        }
+    });
 </script>
 
 {% endblock %}
