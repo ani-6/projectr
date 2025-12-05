@@ -7,25 +7,38 @@ from .models import Thread, ChatMessage
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.user = self.scope['user']
+        
+        # 1. Check if user is authenticated
+        if not self.user.is_authenticated:
+            await self.close()
+            return
+
         # The other user's ID is passed in the URL
         self.other_user_id = self.scope['url_route']['kwargs']['id']
         
         # Determine the unique thread group name
-        # We sort IDs to ensure consistent group naming regardless of who initiates
         user_ids = sorted([self.user.id, int(self.other_user_id)])
         self.room_group_name = f'chat_{user_ids[0]}_{user_ids[1]}'
 
-        await self.channel_layer.group_add(
-            self.room_group_name,
-            self.channel_name
-        )
-        await self.accept()
+        try:
+            # 2. Try to connect to the Channel Layer (Redis)
+            await self.channel_layer.group_add(
+                self.room_group_name,
+                self.channel_name
+            )
+            await self.accept()
+        except Exception as e:
+            # If Redis is down, this will catch the error and close the socket
+            print(f"WebSocket Connection Error (Likely Redis): {e}")
+            await self.close(code=1011) # Internal Error
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
-        )
+        # Only try to discard if we successfully determined the group name
+        if hasattr(self, 'room_group_name'):
+            await self.channel_layer.group_discard(
+                self.room_group_name,
+                self.channel_name
+            )
 
     async def receive(self, text_data):
         data = json.loads(text_data)
@@ -61,7 +74,35 @@ class ChatConsumer(AsyncWebsocketConsumer):
         other_user = User.objects.get(id=other_user_id)
         # ThreadManager handles getting or creating
         thread, created = Thread.objects.get_or_new(self.user, other_user.username)
-        return ChatMessage.objects.create(thread=thread, user=self.user, message=message)
+        # FORCE UPDATE: Explicitly save thread to update the 'updated' timestamp
+        thread.save()
+        msg = ChatMessage.objects.create(thread=thread, user=self.user, message=message)
+        
+        # --- Notification Logic ---
+        # We import here to prevent potential circular imports at module level
+        from apps.common.utils import send_notification_to_user
+        from apps.common.models import Notification
+        
+        # Define the standard notification message
+        notification_msg = f"New message from {self.user.first_name or self.user.username}"
+        
+        # Anti-Spam: Check if there is already an UNREAD notification from this user
+        # This ensures we don't flood the notification center with 10 alerts for 10 chat messages
+        has_unread_notification = Notification.objects.filter(
+            recipient=other_user,
+            is_read=False,
+            message=notification_msg
+        ).exists()
+        
+        if not has_unread_notification:
+            send_notification_to_user(
+                user=other_user,
+                message=notification_msg,
+                link='/chat/',
+                type='info'
+            )
+            
+        return msg
 
     @database_sync_to_async
     def get_user_avatar_url(self, user):

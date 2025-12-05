@@ -5,12 +5,30 @@ from django.db.models import Q
 from django.http import JsonResponse
 from .models import Thread, ChatMessage
 
+# Imports for Redis Check
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+import time
+
 @login_required
 def chat_view(request):
     """
     Main view for the chat interface.
     """
     return render(request, 'chat/index.html')
+
+@login_required
+def check_redis_status(request):
+    """
+    Checks if the Channel Layer (Redis) is accessible.
+    """
+    try:
+        layer = get_channel_layer()
+        # Perform a simple operation to verify connection
+        async_to_sync(layer.group_add)("health_check", "health_check_channel")
+        return JsonResponse({'status': 'active', 'message': 'Redis connection established.'})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': f'Redis connection failed: {str(e)}'}, status=503)
 
 @login_required
 def get_recent_contacts(request):
@@ -41,6 +59,13 @@ def get_recent_contacts(request):
         last_msg = ChatMessage.objects.filter(thread=thread).order_by('-timestamp').first()
         preview = last_msg.message[:30] + '...' if last_msg else 'No messages yet'
         timestamp = last_msg.timestamp.strftime('%H:%M') if last_msg else ''
+        
+        # Count unread messages sent BY the other user
+        unread_count = ChatMessage.objects.filter(
+            thread=thread, 
+            user=other_user, 
+            is_read=False
+        ).count()
 
         data.append({
             'id': other_user.id,
@@ -49,7 +74,8 @@ def get_recent_contacts(request):
             'role': role,
             'avatar': avatar,
             'last_message': preview,
-            'timestamp': timestamp
+            'timestamp': timestamp,
+            'unread_count': unread_count # Add to response
         })
     
     return JsonResponse({'users': data})
@@ -61,7 +87,6 @@ def get_user_list(request):
     """
     query = request.GET.get('q', '').strip()
     
-    # If no query, return empty list (since we only show recent contacts by default now)
     if not query:
         return JsonResponse({'users': []})
 
@@ -91,8 +116,9 @@ def get_user_list(request):
             'full_name': f"{user.first_name} {user.last_name}".strip() or user.username,
             'role': role,
             'avatar': avatar,
-            'last_message': 'Start a new conversation', # Placeholder for search results
-            'timestamp': ''
+            'last_message': 'Start a new conversation',
+            'timestamp': '',
+            'unread_count': 0
         })
     
     return JsonResponse({'users': data})
@@ -111,6 +137,23 @@ def get_chat_history(request, user_id):
     
     if not thread:
          return JsonResponse({'messages': []})
+
+    # 1. Mark unread CHAT messages from this user as read
+    ChatMessage.objects.filter(
+        thread=thread, 
+        user=other_user, 
+        is_read=False
+    ).update(is_read=True)
+
+    # 2. Also mark the associated SYSTEM Notification as read
+    # This clears the bell icon alert automatically when you open the chat
+    from apps.common.models import Notification
+    notification_msg = f"New message from {other_user.first_name or other_user.username}"
+    Notification.objects.filter(
+        recipient=request.user,
+        is_read=False,
+        message=notification_msg
+    ).update(is_read=True)
 
     messages = ChatMessage.objects.filter(thread=thread).order_by('timestamp')
     data = []
