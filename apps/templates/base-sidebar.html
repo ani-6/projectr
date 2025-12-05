@@ -79,20 +79,15 @@
                 <button class="btn d-lg-none shadow-sm rounded-circle p-2 flex-shrink-0" type="button" onclick="toggleSidebar()" style="width: 40px; height: 40px;">
                     <i class="fa-solid fa-bars"></i>
                 </button>
-                
-                <!-- Title Only (Desktop: Visible, Mobile: Hidden) -->
-                <h4 id="desktopPageTitle" class="fw-bold mb-0 text-truncate d-none d-lg-block" style="color: var(--text-main);">{% block page_title %}Main Dashboard{% endblock %}</h4>
-            </div>
-
-            <!-- Right: Actions -->
-            <div class="d-flex align-items-center gap-2 gap-md-3 flex-shrink-0">
-                
                 <!-- Desktop Search -->
                 <div class="search-bar-container d-none d-md-flex">
                     <i class="fa-solid fa-magnifying-glass text-muted"></i>
                     <input type="search" placeholder="Search..." aria-label="Search">
                 </div>
+            </div>
 
+            <!-- Right: Actions -->
+            <div class="d-flex align-items-center gap-2 gap-md-3 flex-shrink-0">
                 <!-- Theme Toggle -->
                 <button class="btn bg-transparent rounded-circle d-flex align-items-center justify-content-center p-0" 
                         style="width: 40px; height: 40px; border: 1px solid var(--border-color);" 
@@ -187,10 +182,7 @@
         </header>
 
         <main class="w-100">
-            <!-- Mobile Page Title (Copied from Desktop Title via JS) -->
-            <div id="mobilePageTitleContainer" class="d-lg-none mb-4">
-                <!-- Title Injected Here -->
-            </div>
+            <h4 class="fw-bold mb-0 text-truncate d-none d-lg-block" style="color: var(--text-main);">{% block page_title %}Main Dashboard{% endblock %}</h4>
 
             {% block dashboard_content %}{% endblock %}
         </main>
@@ -251,21 +243,6 @@
             }
         });
     }
-
-    // --- Responsive Title Logic ---
-    document.addEventListener('DOMContentLoaded', function() {
-        const desktopTitle = document.getElementById('desktopPageTitle');
-        const mobileContainer = document.getElementById('mobilePageTitleContainer');
-
-        if (desktopTitle && mobileContainer && desktopTitle.textContent.trim() !== "") {
-            // Create mobile title element
-            const mobileTitle = document.createElement('h2');
-            mobileTitle.className = 'fw-bold text-dark mb-0';
-            mobileTitle.innerHTML = desktopTitle.innerHTML;
-            
-            mobileContainer.appendChild(mobileTitle);
-        }
-    });
 </script>
 
 {% endblock %}
