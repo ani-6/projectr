@@ -1,37 +1,7 @@
 from django.db import models
-from django.utils.text import slugify
+from taggit.managers import TaggableManager
 
-# 1. New Custom Tag Model
-class Tag(models.Model):
-    name = models.CharField(max_length=100, verbose_name='Tag Name')
-    slug = models.SlugField(max_length=100, unique=True, verbose_name='Slug')
-    
-    # You can change this to choices if you have fixed types (e.g., Genre, Actor, Studio)
-    tag_type = models.CharField(
-        max_length=50, 
-        default='General', 
-        verbose_name='Tag Type',
-        help_text="e.g., 'Genre', 'Actor', 'Resolution'"
-    )
-    
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        db_table = 'tags'
-        verbose_name = 'Tag'
-        verbose_name_plural = 'Tags'
-        # Ensures you can't have two tags with same name AND same type
-        unique_together = ('name', 'tag_type') 
-        ordering = ['tag_type', 'name']
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(f"{self.tag_type}-{self.name}")
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return f"{self.name} ({self.tag_type})"
-
+# 1. REMOVED Custom Tag Model (Replaced by django-taggit)
 
 class ErrorCode(models.Model):
     code = models.CharField(max_length=50, unique=True, verbose_name='Error Code')
@@ -89,7 +59,6 @@ class ModelName(models.Model):
     search_text = models.CharField(max_length=255, null=True, blank=True, verbose_name='Search Text')
     
     # Relationships
-    # Note: If these refer to the Folder model, consider changing IntegerField to ForeignKey in the future
     folder = models.IntegerField(null=True, blank=True, verbose_name='Folder')
     uploads_folder = models.IntegerField(null=True, blank=True, verbose_name='Uploads Folder')
     
@@ -139,13 +108,8 @@ class MediaFile(models.Model):
     subreddit = models.ForeignKey(SubredditList, on_delete=models.SET_NULL, null=True, blank=True, related_name='media_files')
     folder = models.ForeignKey(Folder, on_delete=models.CASCADE, related_name='media_files')
     
-    # 2. Replaced TaggableManager with custom ManyToManyField
-    tags = models.ManyToManyField(
-        Tag, 
-        blank=True, 
-        related_name='media_files', 
-        verbose_name='Tags'
-    )
+    # 2. Replaced Custom ManyToManyField with TaggableManager
+    tags = TaggableManager(blank=True, verbose_name='Tags')
     
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Created At')
     last_updated_at = models.DateTimeField(auto_now=True, verbose_name='Last Updated At')
@@ -176,7 +140,6 @@ class MediaStat(models.Model):
 
 
 class ModelRecord(models.Model):
-    # CHANGED: Renamed field from 'models' to 'associated_models' to avoid conflict
     associated_models = models.ManyToManyField(
         'ModelName', 
         blank=True, 
@@ -193,7 +156,6 @@ class ModelRecord(models.Model):
         verbose_name_plural = 'Model Records'
 
     def __str__(self):
-        # Update the reference in __str__ as well
         names = ", ".join([str(m) for m in self.associated_models.all()])
         return f"Record for {names}"
 

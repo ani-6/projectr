@@ -1,20 +1,9 @@
 from django.contrib import admin
 from .models import (
-    Tag, ErrorCode, Folder, SubredditList, ModelName, 
+    ErrorCode, Folder, SubredditList, ModelName, 
     MediaFile, MediaStat, ModelRecord, VideoCategory, VideoLink
 )
 
-# 1. Tag Admin
-@admin.register(Tag)
-class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'tag_type', 'slug', 'created_at')
-    list_filter = ('tag_type',)
-    search_fields = ('name', 'slug')
-    # Helps auto-fill the slug field in the UI as you type the name/type
-    prepopulated_fields = {'slug': ('tag_type', 'name')} 
-
-
-# 2. Reference Models (Simple Lists)
 @admin.register(ErrorCode)
 class ErrorCodeAdmin(admin.ModelAdmin):
     list_display = ('code', 'description', 'last_updated_at')
@@ -26,7 +15,7 @@ class FolderAdmin(admin.ModelAdmin):
     list_display = ('name', 'parent', 'files_count', 'deleted')
     list_filter = ('deleted', 'parent')
     search_fields = ('name',)
-    autocomplete_fields = ['parent'] # Helpful if you have many folders
+    autocomplete_fields = ['parent'] 
 
 @admin.register(SubredditList)
 class SubredditListAdmin(admin.ModelAdmin):
@@ -48,10 +37,6 @@ class ModelNameAdmin(admin.ModelAdmin):
     search_fields = ('name', 'title', 'search_text')
     readonly_fields = ('created_at', 'last_updated_at')
 
-
-# 3. Media Files & Stats (Complex Relationship)
-
-# Inline allows editing Stats inside the MediaFile page
 class MediaStatInline(admin.StackedInline):
     model = MediaStat
     can_delete = False
@@ -59,14 +44,13 @@ class MediaStatInline(admin.StackedInline):
 
 @admin.register(MediaFile)
 class MediaFileAdmin(admin.ModelAdmin):
-    list_display = ('file_name', 'media_type', 'downloaded', 'synced', 'starred', 'created_at')
-    list_filter = ('media_type', 'downloaded', 'synced', 'starred', 'subreddit', 'model')
+    list_display = ('file_name', 'media_type', 'downloaded', 'synced', 'starred', 'get_tags_display', 'created_at')
+    list_filter = ('media_type', 'downloaded', 'synced', 'starred', 'subreddit', 'model', 'tags') # Taggit supports filtering by tags
     search_fields = ('file_name', 'original_url', 'description')
     
-    # This creates the nice double-box UI for selecting tags
-    filter_horizontal = ('tags',) 
+    # REMOVED: filter_horizontal = ('tags',) 
+    # Taggit uses a simple text input widget (comma-separated), not a horizontal filter box.
     
-    # This allows searching for related keys instead of a dropdown list (good for performance)
     autocomplete_fields = ['model', 'subreddit', 'folder']
     
     inlines = [MediaStatInline]
@@ -83,7 +67,7 @@ class MediaFileAdmin(admin.ModelAdmin):
             'fields': ('post_title', 'post_id', 'post_url', 'description')
         }),
         ('Relationships', {
-            'fields': ('model', 'subreddit', 'folder', 'tags')
+            'fields': ('model', 'subreddit', 'folder', 'tags') # 'tags' here renders as a text input
         }),
         ('Drive Info', {
             'fields': ('drive_file_id', 'drive_id', 'thumbnail_drive', 'filesize', 'filesize_bytes')
@@ -93,17 +77,21 @@ class MediaFileAdmin(admin.ModelAdmin):
         }),
     )
 
+    # Helper to display tags in the list view
+    def get_tags_display(self, obj):
+        return ", ".join(o.name for o in obj.tags.all())
+    get_tags_display.short_description = 'Tags'
 
-# 4. Model Records
+    # Optimization: Prefetch tags to prevent N+1 queries in list view
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('tags')
+
 @admin.register(ModelRecord)
 class ModelRecordAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'created_at')
     search_fields = ('story',)
-    # Use filter_horizontal for the ManyToMany field 'associated_models'
     filter_horizontal = ('associated_models',) 
 
-
-# 5. Video Links
 @admin.register(VideoCategory)
 class VideoCategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'created_at')
