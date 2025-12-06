@@ -31,10 +31,10 @@ class SubredditListAdmin(admin.ModelAdmin):
 
 @admin.register(ModelName)
 class ModelNameAdmin(admin.ModelAdmin):
-    list_display = ('name', 'is_active', 'files_count', 'drive_no')
+    list_display = ('name', 'img_preview', 'is_active', 'files_count', 'drive_no')
     list_filter = ('is_active', 'drive_no')
     search_fields = ('name', 'title', 'search_text')
-    readonly_fields = ('created_at', 'last_updated_at')
+    readonly_fields = ('img_preview', 'created_at', 'last_updated_at')
 
 class MediaStatInline(admin.StackedInline):
     model = MediaStat
@@ -54,10 +54,10 @@ class MediaFileAdmin(admin.ModelAdmin):
     
     inlines = [MediaStatInline]
     
-    readonly_fields = ('created_at', 'last_updated_at')
+    readonly_fields = ('img_preview', 'created_at', 'last_updated_at')
     fieldsets = (
         ('Basic Info', {
-            'fields': ('file_name', 'media_type', 'original_url', 'secondary_url', 'thumbnail_url')
+            'fields': ('file_name', 'media_type','img_preview', 'original_url', 'secondary_url', 'thumbnail_url')
         }),
         ('Status', {
             'fields': ('downloaded', 'synced', 'starred', 'error_code')

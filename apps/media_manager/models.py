@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.html import format_html
 from taggit.managers import TaggableManager
 
 # 1. REMOVED Custom Tag Model (Replaced by django-taggit)
@@ -74,6 +75,17 @@ class ModelName(models.Model):
         db_table = 'model_names'
         verbose_name = 'Model Name'
         verbose_name_plural = 'Model Names'
+        
+    def img_preview(self):
+        url=''
+        if self.picture == None:
+            url = "media/Secret/defaults/default.png"
+        else:
+            url = self.picture
+        return format_html(
+            '<img loading="lazy" src="{}" style="width: 70px; height: 70px; object-fit: cover;" />',
+            url
+        )
 
     def __str__(self):
         return self.name
@@ -118,6 +130,27 @@ class MediaFile(models.Model):
         db_table = 'media_files'
         verbose_name = 'Media File'
         verbose_name_plural = 'Media Files'
+    
+    def img_preview(self):
+        """
+        Returns an HTML image tag with fallback support.
+        Usage in Admin: list_display = [..., 'img_preview_html', ...]
+        """
+        original_url = self.original_url
+        primary = self.thumbnail_url
+        fallback = self.thumbnail_drive or ''
+
+        if primary:
+            return format_html(
+                '''<a href="{}" ><img src="{}" 
+                        onerror="this.onerror=null;this.src='{}';" 
+                        style="max-height: 75px; max-width: 75px; object-fit: cover;" 
+                   /></a>''',
+                original_url,
+                primary,
+                fallback
+            )
+        return "No Image"
 
     def __str__(self):
         return self.file_name or f"File {self.id}"
