@@ -16,7 +16,7 @@
         {% for notification in notifications %}
         <a href="#" 
            onclick="markAsRead(event, {{ notification.id }}, '{{ notification.link|default:'' }}')"
-           class="list-group-item list-group-item-action p-4 d-flex align-items-start gap-3 user-list-item {% if not notification.is_read %}bg-light{% endif %}">
+           class="list-group-item list-group-item-action p-4 d-flex align-items-start gap-3 user-list-item {% if not notification.is_read %}bg-success-subtle{% endif %}">
             
             <div class="stat-card-icon flex-shrink-0 
                         bg-{{ notification.notification_type }}-subtle text-{{ notification.notification_type }} border border-{{ notification.notification_type }}-subtle">
