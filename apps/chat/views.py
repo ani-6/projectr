@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import JsonResponse
+from django.utils import timezone
 from .models import Thread, ChatMessage
 
 # Imports for Redis Check
@@ -58,7 +59,12 @@ def get_recent_contacts(request):
         # Get last message preview
         last_msg = ChatMessage.objects.filter(thread=thread).order_by('-timestamp').first()
         preview = last_msg.message[:30] + '...' if last_msg else 'No messages yet'
-        timestamp = last_msg.timestamp.strftime('%H:%M') if last_msg else ''
+        
+        # Format timestamp with timezone support
+        timestamp = ''
+        if last_msg:
+            local_time = timezone.localtime(last_msg.timestamp)
+            timestamp = local_time.strftime('%I:%M %p').lstrip('0').lower()
         
         # Count unread messages sent BY the other user
         unread_count = ChatMessage.objects.filter(
@@ -75,7 +81,7 @@ def get_recent_contacts(request):
             'avatar': avatar,
             'last_message': preview,
             'timestamp': timestamp,
-            'unread_count': unread_count # Add to response
+            'unread_count': unread_count
         })
     
     return JsonResponse({'users': data})
@@ -146,7 +152,6 @@ def get_chat_history(request, user_id):
     ).update(is_read=True)
 
     # 2. Also mark the associated SYSTEM Notification as read
-    # This clears the bell icon alert automatically when you open the chat
     from apps.common.models import Notification
     notification_msg = f"New message from {other_user.first_name or other_user.username}"
     Notification.objects.filter(
@@ -163,12 +168,16 @@ def get_chat_history(request, user_id):
         if hasattr(msg.user, 'user_profile') and msg.user.user_profile.profile_picture:
             avatar = msg.user.user_profile.profile_picture.url
 
+        # Format timestamp with timezone support
+        local_time = timezone.localtime(msg.timestamp)
+        formatted_time = local_time.strftime('%I:%M %p').lstrip('0').lower()
+
         data.append({
             'message': msg.message,
             'username': msg.user.username,
             'is_me': msg.user == request.user,
             'avatar': avatar,
-            'timestamp': msg.timestamp.strftime('%H:%M')
+            'timestamp': formatted_time
         })
     
     return JsonResponse({'messages': data, 'other_user': other_user.username})

@@ -2,6 +2,7 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.contrib.auth.models import User
+from django.utils import timezone
 from .models import Thread, ChatMessage
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -45,7 +46,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = data['message']
         
         # Save message to database
-        await self.save_message(message, self.other_user_id)
+        msg = await self.save_message(message, self.other_user_id)
+        
+        # Get formatted timestamp for the response
+        timestamp = await self.get_formatted_timestamp(msg)
 
         # Broadcast message to room group
         await self.channel_layer.group_send(
@@ -54,7 +58,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'type': 'chat_message',
                 'message': message,
                 'username': self.user.username,
-                'avatar': await self.get_user_avatar_url(self.user)
+                'avatar': await self.get_user_avatar_url(self.user),
+                'timestamp': timestamp
             }
         )
 
@@ -62,11 +67,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = event['message']
         username = event['username']
         avatar = event['avatar']
+        timestamp = event.get('timestamp', '')
 
         await self.send(text_data=json.dumps({
             'message': message,
             'username': username,
-            'avatar': avatar
+            'avatar': avatar,
+            'timestamp': timestamp
         }))
 
     @database_sync_to_async
@@ -79,7 +86,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         msg = ChatMessage.objects.create(thread=thread, user=self.user, message=message)
         
         # --- Notification Logic ---
-        # We import here to prevent potential circular imports at module level
         from apps.common.utils import send_notification_to_user
         from apps.common.models import Notification
         
@@ -87,7 +93,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         notification_msg = f"New message from {self.user.first_name or self.user.username}"
         
         # Anti-Spam: Check if there is already an UNREAD notification from this user
-        # This ensures we don't flood the notification center with 10 alerts for 10 chat messages
         has_unread_notification = Notification.objects.filter(
             recipient=other_user,
             is_read=False,
@@ -103,6 +108,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
             )
             
         return msg
+
+    @database_sync_to_async
+    def get_formatted_timestamp(self, msg):
+        local_time = timezone.localtime(msg.timestamp)
+        return local_time.strftime('%I:%M %p').lstrip('0').lower()
 
     @database_sync_to_async
     def get_user_avatar_url(self, user):
