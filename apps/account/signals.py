@@ -31,9 +31,9 @@ def create_profile(sender, instance, created, **kwargs):
             type='info'
         )
 
-        # 4. Notification to 'Managers' Group
+        # 4. Notification to 'Manager' Group
         send_notification_to_group(
-            group_name='Managers',
+            group_name='Manager',
             message=f"New User Registration: {instance.username} ({instance.email}) joined the platform.",
             link=f"/admin/auth/user/{instance.id}/change/",  # Link to Django Admin for quick review
             type='info'

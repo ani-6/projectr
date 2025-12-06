@@ -23,10 +23,11 @@ class Command(BaseCommand):
         self.stdout.write(self.style.WARNING('Starting data seed...'))
 
         # 1. Ensure Groups Exist
-        users_group, created_u = Group.objects.get_or_create(name='Users')
-        managers_group, created_m = Group.objects.get_or_create(name='Managers')
-        if created_u or created_m:
-            self.stdout.write(self.style.SUCCESS("Groups 'Users' and 'Managers' created."))
+        users_group, created_u = Group.objects.get_or_create(name='User')
+        managers_group, created_m = Group.objects.get_or_create(name='Manager')
+        plus_user_group, created_p = Group.objects.get_or_create(name='PlusUUser')
+        if created_u or created_m or created_p:
+            self.stdout.write(self.style.SUCCESS("Groups 'User', 'Manager', and 'PlusUser' created."))
         else:
             self.stdout.write("Groups already exist.")
 

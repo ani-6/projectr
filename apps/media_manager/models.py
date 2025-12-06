@@ -11,7 +11,7 @@ class ErrorCode(models.Model):
     last_updated_at = models.DateTimeField(auto_now=True, verbose_name='Last Updated At')
 
     class Meta:
-        db_table = 'error_codes'
+        db_table = 'mm_error_codes'
         verbose_name = 'Error Code'
         verbose_name_plural = 'Error Codes'
 
@@ -28,7 +28,7 @@ class Folder(models.Model):
     last_updated_at = models.DateTimeField(auto_now=True, verbose_name='Last Updated At')
 
     class Meta:
-        db_table = 'folders'
+        db_table = 'mm_folders'
         verbose_name = 'Folder'
         verbose_name_plural = 'Folders'
 
@@ -43,7 +43,7 @@ class SubredditList(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Created At')
     last_updated_at = models.DateTimeField(auto_now=True, verbose_name='Last Updated At')
     class Meta:
-        db_table = 'subreddits_list'
+        db_table = 'mm_subreddits_list'
         verbose_name = 'Subreddit'
         verbose_name_plural = 'Subreddits List'
 
@@ -72,7 +72,7 @@ class ModelName(models.Model):
     last_updated_at = models.DateTimeField(auto_now=True, verbose_name='Last Updated At')
 
     class Meta:
-        db_table = 'model_names'
+        db_table = 'mm_model_names'
         verbose_name = 'Model Name'
         verbose_name_plural = 'Model Names'
         
@@ -127,7 +127,7 @@ class MediaFile(models.Model):
     last_updated_at = models.DateTimeField(auto_now=True, verbose_name='Last Updated At')
 
     class Meta:
-        db_table = 'media_files'
+        db_table = 'mm_media_files'
         verbose_name = 'Media File'
         verbose_name_plural = 'Media Files'
     
@@ -164,7 +164,7 @@ class MediaStat(models.Model):
     last_visited = models.DateTimeField(null=True, blank=True, verbose_name='Last Visited')
 
     class Meta:
-        db_table = 'media_stats'
+        db_table = 'mm_media_stats'
         verbose_name = 'Media Stat'
         verbose_name_plural = 'Media Stats'
 
@@ -184,7 +184,7 @@ class ModelRecord(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Created At')
 
     class Meta:
-        db_table = 'model_records'
+        db_table = 'mm_model_records'
         verbose_name = 'Model Record'
         verbose_name_plural = 'Model Records'
 
@@ -198,6 +198,7 @@ class VideoCategory(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        db_table = 'mm_video_categories'
         verbose_name = 'Video Category'
         verbose_name_plural = 'Video Categories'
 
@@ -221,7 +222,7 @@ class VideoLink(models.Model):
     last_updated_at = models.DateTimeField(auto_now=True, verbose_name='Last Updated At')
 
     class Meta:
-        db_table = 'video_links'
+        db_table = 'mm_video_links'
         verbose_name = 'Video Link'
         verbose_name_plural = 'Video Links'
 
