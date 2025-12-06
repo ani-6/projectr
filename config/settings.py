@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'channels',
     'taggit',
+    'maintenance_mode',
 ]
 
 MIDDLEWARE = [
@@ -62,10 +63,12 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.gzip.GZipMiddleware', 
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'apps.common.middleware.UserActivityMiddleware',
+    'maintenance_mode.middleware.MaintenanceModeMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -230,3 +233,13 @@ CSRF_COOKIE_SAMESITE = 'LAX'
 
 # Ensure session cookies are sent
 SESSION_COOKIE_SAMESITE = "Lax"
+
+#Maintenance mode config
+MAINTENANCE_MODE_IGNORE_ADMIN_SITE = True
+MAINTENANCE_MODE_IGNORE_AUTHENTICATED_USER = False
+MAINTENANCE_MODE_IGNORE_STAFF = False
+MAINTENANCE_MODE_IGNORE_SUPERUSER = True
+MAINTENANCE_MODE_IGNORE_IP_ADDRESSES = ()
+MAINTENANCE_MODE_LOGOUT_AUTHENTICATED_USER = False
+MAINTENANCE_MODE_STATUS_CODE = 503
+MAINTENANCE_MODE_TEMPLATE = "error-maintenance.html"
