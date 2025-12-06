@@ -39,7 +39,28 @@
                         </div>
                         <div class="col-md-6 d-none" id="userField">
                             <label class="form-label small text-muted">Target User</label>
-                            {{ form.user }}
+                            
+                            <!-- Search Input Wrapper -->
+                            <div class="position-relative mb-2">
+                                <input type="text" id="userSearchInput" class="form-control" placeholder="Search or select user..." autocomplete="off">
+                                <div id="userSearchResults" class="list-group position-absolute w-100 shadow-sm mt-1 d-none" style="z-index: 1000; max-height: 200px; overflow-y: auto;">
+                                    <!-- Results injected here -->
+                                </div>
+                            </div>
+
+                            <!-- Hidden Select (Actual Form Field) -->
+                            <div class="d-none">
+                                {{ form.user }}
+                            </div>
+                            
+                            <!-- Selected User Display -->
+                            <div id="selectedUserDisplay" class="d-none align-items-center gap-2 p-2 border rounded bg-light">
+                                <span class="fw-medium" id="selectedUserName"></span>
+                                <button type="button" class="btn btn-sm btn-icon text-danger ms-auto" onclick="clearUserSelection()">
+                                    <i class="fa-solid fa-times"></i>
+                                </button>
+                            </div>
+
                             {% if form.user.errors %}
                                 <div class="text-danger small mt-1">{{ form.user.errors }}</div>
                             {% endif %}
@@ -79,12 +100,22 @@
         const radios = document.querySelectorAll('input[name="recipient_type"]');
         const groupField = document.getElementById('groupField');
         const userField = document.getElementById('userField');
+        
+        // Search Elements
+        const searchInput = document.getElementById('userSearchInput');
+        const resultsContainer = document.getElementById('userSearchResults');
+        const hiddenSelect = document.getElementById('id_user'); // Django renders ID as id_fieldname
+        const selectedDisplay = document.getElementById('selectedUserDisplay');
+        const selectedNameSpan = document.getElementById('selectedUserName');
 
+        // --- Toggle Recipient Type ---
         function toggleFields() {
             const selected = document.querySelector('input[name="recipient_type"]:checked').value;
             if (selected === 'group') {
                 groupField.classList.remove('d-none');
                 userField.classList.add('d-none');
+                // Clear user selection when switching away
+                clearUserSelection();
             } else {
                 groupField.classList.add('d-none');
                 userField.classList.remove('d-none');
@@ -92,9 +123,76 @@
         }
 
         radios.forEach(radio => radio.addEventListener('change', toggleFields));
-        
-        // Init state
-        toggleFields();
+        toggleFields(); // Init state
+
+        // --- User Search Logic ---
+        let debounceTimer;
+
+        function fetchUsers(query = '') {
+            fetch(`/common/api/users/search/?q=${query}`)
+                .then(res => res.json())
+                .then(data => {
+                    resultsContainer.innerHTML = '';
+                    if (data.length > 0) {
+                        data.forEach(user => {
+                            const item = document.createElement('button');
+                            item.type = 'button';
+                            item.className = 'list-group-item list-group-item-action';
+                            item.textContent = user.text;
+                            item.onclick = () => selectUser(user.id, user.text);
+                            resultsContainer.appendChild(item);
+                        });
+                        resultsContainer.classList.remove('d-none');
+                    } else {
+                        resultsContainer.innerHTML = '<div class="list-group-item text-muted">No users found</div>';
+                        resultsContainer.classList.remove('d-none');
+                    }
+                });
+        }
+
+        // Fetch all users on focus
+        searchInput.addEventListener('focus', function() {
+            if (searchInput.value.trim() === '') {
+                fetchUsers();
+            }
+        });
+
+        // Search on input
+        searchInput.addEventListener('input', function(e) {
+            const query = e.target.value.trim();
+            clearTimeout(debounceTimer);
+            
+            debounceTimer = setTimeout(() => {
+                fetchUsers(query);
+            }, 300);
+        });
+
+        // Hide results on click outside
+        document.addEventListener('click', function(e) {
+            if (!userField.contains(e.target)) {
+                resultsContainer.classList.add('d-none');
+            }
+        });
+
+        // Expose functions to global scope for inline onclicks
+        window.selectUser = function(id, name) {
+            hiddenSelect.value = id;
+            selectedNameSpan.textContent = name;
+            
+            searchInput.classList.add('d-none');
+            resultsContainer.classList.add('d-none');
+            selectedDisplay.classList.remove('d-none');
+            selectedDisplay.classList.add('d-flex');
+        };
+
+        window.clearUserSelection = function() {
+            hiddenSelect.value = '';
+            searchInput.value = '';
+            searchInput.classList.remove('d-none');
+            selectedDisplay.classList.add('d-none');
+            selectedDisplay.classList.remove('d-flex');
+            fetchUsers(); // Re-fetch list so it's ready if they search again
+        };
     });
 </script>
 {% endblock %}
