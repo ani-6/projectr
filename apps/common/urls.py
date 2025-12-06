@@ -4,7 +4,8 @@ from .views import (
     MarkAllReadView, 
     SessionStatusView, 
     NotificationListView,
-    SystemHealthView
+    SystemHealthView,
+    SendManualNotificationView
 )
 from .api_views import NotificationListAPIView
 
@@ -16,6 +17,7 @@ urlpatterns = [
     path('notifications/read-all/', MarkAllReadView.as_view(), name='mark-all-read'),
     path('session-status/', SessionStatusView.as_view(), name='session-status'),
     path('notifications/', NotificationListView.as_view(), name='notification-list'),
+    path('system/notification/send/', SendManualNotificationView.as_view(), name='send-notification'),
     
     # --- System Health ---
     path('system/health/', SystemHealthView.as_view(), name='system-health'),

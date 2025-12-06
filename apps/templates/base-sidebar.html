@@ -6,7 +6,7 @@
 {% block content %}
 
 <div class="dashboard-container">
-    
+
     <!-- Mobile Overlay -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
@@ -25,57 +25,71 @@
             <ul class="nav flex-column mb-auto">
                 <div class="nav-section-title">Main Menu</div>
                 <li class="nav-item">
-                    <a href="{% url 'dashboard:home' %}" class="nav-link {% if request.resolver_match.view_name == 'dashboard:home' %}active{% endif %}">
-                        <i class="fa-solid fa-house"></i> 
+                    <a href="{% url 'dashboard:home' %}"
+                        class="nav-link {% if request.resolver_match.view_name == 'dashboard:home' %}active{% endif %}">
+                        <i class="fa-solid fa-house"></i>
                         <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{% url 'chat:index' %}" class="nav-link {% if request.resolver_match.view_name == 'chat:index' %}active{% endif %}">
-                        <i class="fa-solid fa-comments"></i> 
+                    <a href="{% url 'chat:index' %}"
+                        class="nav-link {% if request.resolver_match.view_name == 'chat:index' %}active{% endif %}">
+                        <i class="fa-solid fa-comments"></i>
                         <span>Chats</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{% url 'account:profile' %}" class="nav-link {% if request.resolver_match.view_name == 'account:profile' %}active{% endif %}">
-                        <i class="fa-solid fa-user"></i> 
+                    <a href="{% url 'account:profile' %}"
+                        class="nav-link {% if request.resolver_match.view_name == 'account:profile' %}active{% endif %}">
+                        <i class="fa-solid fa-user"></i>
                         <span>Profile</span>
                     </a>
                 </li>
-                
+
                 {% if is_manager %}
                 <div class="nav-section-title">Administration</div>
                 <li class="nav-item">
-                    <a href="{% url 'common:system-health' %}" class="nav-link {% if request.resolver_match.view_name == 'common:system-health' %}active{% endif %}">
-                        <i class="fa-solid fa-server"></i> 
+                    <a href="{% url 'common:system-health' %}"
+                        class="nav-link {% if request.resolver_match.view_name == 'common:system-health' %}active{% endif %}">
+                        <i class="fa-solid fa-server"></i>
                         <span>System Health</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'common:send-notification' %}" class="nav-link {% if request.resolver_match.view_name == 'common:send-notification' %}active{% endif %}">
+                        <i class="fa-regular fa-paper-plane"></i> 
+                        <span>Send Alert</span>
                     </a>
                 </li>
                 {% endif %}
 
                 <div class="nav-section-title">Preferences</div>
                 <li class="nav-item">
-                    <a href="{% url 'account:users-settings' %}" class="nav-link {% if request.resolver_match.view_name == 'account:users-settings' %}active{% endif %}">
-                        <i class="fa-solid fa-gear"></i> 
+                    <a href="{% url 'account:users-settings' %}"
+                        class="nav-link {% if request.resolver_match.view_name == 'account:users-settings' %}active{% endif %}">
+                        <i class="fa-solid fa-gear"></i>
                         <span>Settings</span>
                     </a>
                 </li>
             </ul>
         </div>
-        
+
         <!-- Sidebar Footer (User Block) -->
         <div class="sidebar-footer">
-             <div class="user-block">
-                <img src="{{ request.user.user_profile.profile_picture.url }}" class="rounded-circle object-fit-cover" width="40" height="40">
+            <div class="user-block">
+                <img src="{{ request.user.user_profile.profile_picture.url }}" class="rounded-circle object-fit-cover"
+                    width="40" height="40">
                 <div class="flex-grow-1 overflow-hidden">
-                    <h6 class="mb-0 small fw-bold text-truncate" style="color: var(--text-main);">{{ request.user.first_name|default:request.user.username }}</h6>
+                    <h6 class="mb-0 small fw-bold text-truncate" style="color: var(--text-main);">{{
+                        request.user.first_name|default:request.user.username }}</h6>
                     <span class="text-muted small d-block">Free Plan</span>
                 </div>
                 <form action="{% url 'account:logout' %}" method="post" class="m-0 p-0">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-link text-danger p-0 border-0"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+                    <button type="submit" class="btn btn-sm btn-link text-danger p-0 border-0"><i
+                            class="fa-solid fa-arrow-right-from-bracket"></i></button>
                 </form>
-             </div>
+            </div>
         </div>
     </div>
 
@@ -98,42 +112,50 @@
             <!-- Right: Actions -->
             <div class="d-flex align-items-center gap-3">
                 <!-- Theme Toggle -->
-                <button class="btn bg-transparent rounded-circle d-flex align-items-center justify-content-center p-0 rounded-icon" 
-                        id="themeToggle">
-                     <i class="fa-solid fa-moon text-muted" id="themeIcon"></i>
+                <button
+                    class="btn bg-transparent rounded-circle d-flex align-items-center justify-content-center p-0 rounded-icon"
+                    id="themeToggle">
+                    <i class="fa-solid fa-moon text-muted" id="themeIcon"></i>
                 </button>
 
                 <!-- Notifications -->
                 <div class="dropdown">
-                    <button class="btn bg-transparent rounded-circle position-relative p-0 d-flex align-items-center justify-content-center rounded-icon" 
-                            data-bs-toggle="dropdown">
+                    <button
+                        class="btn bg-transparent rounded-circle position-relative p-0 d-flex align-items-center justify-content-center rounded-icon"
+                        data-bs-toggle="dropdown">
                         <i class="fa-regular fa-bell text-muted"></i>
                         {% if user_notifications_count > 0 %}
-                        <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+                        <span
+                            class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
                         {% endif %}
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 p-2" style="width: 320px;">
-                        <li><h6 class="dropdown-header fw-bold">Notifications</h6></li>
-                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <h6 class="dropdown-header fw-bold">Notifications</h6>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
                         {% for notification in user_notifications %}
                         <li>
                             <a class="dropdown-item rounded-3 mb-1 p-2" href="#"
-                            onclick="markAsRead(event, {{ notification.id }}, '{{ notification.link|default:'' }}')">
+                                onclick="markAsRead(event, {{ notification.id }}, '{{ notification.link|default:'' }}')">
                                 <div class="d-flex gap-3 align-items-start">
                                     <div class="flex-shrink-0 mt-1">
                                         {% if notification.notification_type == 'success' %}
-                                            <i class="fa-solid fa-circle-check text-success"></i>
+                                        <i class="fa-solid fa-circle-check text-success"></i>
                                         {% elif notification.notification_type == 'danger' %}
-                                            <i class="fa-solid fa-circle-exclamation text-danger"></i>
+                                        <i class="fa-solid fa-circle-exclamation text-danger"></i>
                                         {% elif notification.notification_type == 'warning' %}
-                                            <i class="fa-solid fa-triangle-exclamation text-warning"></i>
+                                        <i class="fa-solid fa-triangle-exclamation text-warning"></i>
                                         {% else %}
-                                            <i class="fa-solid fa-circle-info text-info"></i>
+                                        <i class="fa-solid fa-circle-info text-info"></i>
                                         {% endif %}
                                     </div>
                                     <div>
                                         <p class="mb-0 small text-wrap lh-sm">{{ notification.message }}</p>
-                                        <small class="text-muted" style="font-size: 0.7rem;">{{ notification.created_at|timesince }} ago</small>
+                                        <small class="text-muted" style="font-size: 0.7rem;">{{
+                                            notification.created_at|timesince }} ago</small>
                                     </div>
                                 </div>
                             </a>
@@ -141,35 +163,53 @@
                         {% empty %}
                         <li class="text-center p-3 text-muted small">No new notifications</li>
                         {% endfor %}
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item rounded-3 text-center small text-primary fw-bold" href="{% url 'common:notification-list' %}">View all notifications</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item rounded-3 text-center small text-primary fw-bold"
+                                href="{% url 'common:notification-list' %}">View all notifications</a></li>
                     </ul>
                 </div>
 
                 <!-- Mobile Search Toggle -->
-                <button class="btn bg-transparent rounded-circle d-flex align-items-center justify-content-center p-0 rounded-icon d-md-none " onclick="toggleSearch()">
-                     <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                <button
+                    class="btn bg-transparent rounded-circle d-flex align-items-center justify-content-center p-0 rounded-icon d-md-none "
+                    onclick="toggleSearch()">
+                    <i class="fa-solid fa-magnifying-glass text-muted"></i>
                 </button>
 
                 <!-- Profile Dropdown -->
                 <div class="dropdown">
                     <a href="#" class="d-block" data-bs-toggle="dropdown">
                         {% if request.session.user_avatar %}
-                            <img src="{{ request.session.user_avatar }}" class="rounded-circle border border-2 border-white shadow-sm object-fit-cover" width="40" height="40">
+                        <img src="{{ request.session.user_avatar }}"
+                            class="rounded-circle border border-2 border-white shadow-sm object-fit-cover" width="40"
+                            height="40">
                         {% else %}
-                            <img src="{{ request.user.user_profile.profile_picture.url }}" class="rounded-circle border border-2 border-white shadow-sm object-fit-cover" width="40" height="40">
+                        <img src="{{ request.user.user_profile.profile_picture.url }}"
+                            class="rounded-circle border border-2 border-white shadow-sm object-fit-cover" width="40"
+                            height="40">
                         {% endif %}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 p-2">
-                        <li><h6 class="dropdown-header text-truncate">Hi, {{ request.user.username }}</h6></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item rounded-3" href="{% url 'account:profile' %}"><i class="fa-regular fa-user me-2"></i>Profile</a></li>
-                        <li><a class="dropdown-item rounded-3" href="{% url 'account:users-settings' %}"><i class="fa-solid fa-gear me-2"></i>Settings</a></li>
-                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <h6 class="dropdown-header text-truncate">Hi, {{ request.user.username }}</h6>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item rounded-3" href="{% url 'account:profile' %}"><i
+                                    class="fa-regular fa-user me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item rounded-3" href="{% url 'account:users-settings' %}"><i
+                                    class="fa-solid fa-gear me-2"></i>Settings</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
                         <li>
                             <form id="logout-form" action="{% url 'account:logout' %}" method="post">
                                 {% csrf_token %}
-                                <button type="submit" class="dropdown-item rounded-3 text-danger"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i>Logout</button>
+                                <button type="submit" class="dropdown-item rounded-3 text-danger"><i
+                                        class="fa-solid fa-arrow-right-from-bracket me-2"></i>Logout</button>
                             </form>
                         </li>
                     </ul>
@@ -177,11 +217,13 @@
             </div>
 
             <!-- Mobile Search Bar -->
-            <div id="mobileSearchBar" class="position-absolute start-0 w-100 p-3 shadow-sm d-none d-md-none border-bottom" style="top: 100%; background-color: var(--bg-card); z-index: 100;">
-                 <div class="search-bar-container w-100">
-                     <i class="fa-solid fa-magnifying-glass text-muted"></i>
-                     <input type="search" placeholder="Search..." aria-label="Search" class="w-100">
-                 </div>
+            <div id="mobileSearchBar"
+                class="position-absolute start-0 w-100 p-3 shadow-sm d-none d-md-none border-bottom"
+                style="top: 100%; background-color: var(--bg-card); z-index: 100;">
+                <div class="search-bar-container w-100">
+                    <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                    <input type="search" placeholder="Search..." aria-label="Search" class="w-100">
+                </div>
             </div>
         </header>
 
@@ -205,15 +247,16 @@
 {% if messages %}
 <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1060">
     {% for message in messages %}
-    <div class="toast align-items-center border-0 shadow-lg rounded-4 overflow-hidden mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast align-items-center border-0 shadow-lg rounded-4 overflow-hidden mb-2" role="alert"
+        aria-live="assertive" aria-atomic="true">
         <div class="d-flex p-3 border-start border-4 border-{{ message.tags|default:'primary' }} bg-card">
             <div class="flex-shrink-0 text-{{ message.tags|default:'primary' }}">
                 {% if message.tags == 'success' %}
-                    <i class="fa-solid fa-circle-check fs-5"></i>
+                <i class="fa-solid fa-circle-check fs-5"></i>
                 {% elif message.tags == 'error' or message.tags == 'danger' %}
-                    <i class="fa-solid fa-circle-xmark fs-5"></i>
+                <i class="fa-solid fa-circle-xmark fs-5"></i>
                 {% else %}
-                    <i class="fa-solid fa-circle-info fs-5"></i>
+                <i class="fa-solid fa-circle-info fs-5"></i>
                 {% endif %}
             </div>
             <div class="flex-grow-1 ms-3">
@@ -234,16 +277,16 @@
             method: 'POST',
             headers: { 'X-CSRFToken': '{{ csrf_token }}' },
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                if (link && link !== 'None' && link !== '') {
-                    window.location.href = link;
-                } else {
-                    location.reload();
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    if (link && link !== 'None' && link !== '') {
+                        window.location.href = link;
+                    } else {
+                        location.reload();
+                    }
                 }
-            }
-        });
+            });
     }
 </script>
 {% endblock %}

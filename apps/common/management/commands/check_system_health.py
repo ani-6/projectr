@@ -15,7 +15,10 @@ class Command(BaseCommand):
         self.stdout.write(f"- Database: {metrics['db_status']} ({metrics['db_latency']}ms)")
         self.stdout.write(f"- Redis: {metrics['redis_status']} ({metrics['redis_latency']}ms)")
         
-        if metrics['db_status'] != 'Online' or metrics['redis_status'] != 'Online':
-            self.stdout.write(self.style.ERROR("Issues detected! Notifications sent."))
+        # Check if notifications were actually triggered
+        if metrics.get('notifications_sent', False):
+            self.stdout.write(self.style.ERROR("Issues detected! Notifications have been sent to Managers."))
+        elif metrics['db_status'] != 'Online' or metrics['redis_status'] != 'Online':
+            self.stdout.write(self.style.WARNING("Issues detected, but notifications were suppressed (Rate Limit or Empty Groups)."))
         else:
             self.stdout.write(self.style.SUCCESS("All systems operational."))

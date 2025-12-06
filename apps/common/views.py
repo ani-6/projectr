@@ -5,11 +5,14 @@ from django.conf import settings
 from django.core import signing
 from django.http import Http404, FileResponse, JsonResponse
 from django.views import View
-from django.views.generic import ListView, TemplateView
-from django.shortcuts import get_object_or_404
+from django.views.generic import ListView, TemplateView, FormView
+from django.shortcuts import get_object_or_404, redirect, render # Added render/redirect
+from django.contrib import messages # Added messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.urls import reverse_lazy # Added reverse_lazy
 from .models import Notification
-from .utils import perform_health_check_and_notify
+from .utils import perform_health_check_and_notify, send_notification_to_group, send_notification_to_user # Added send functions
+from .forms import SendNotificationForm # Added Form
 
 # --- Existing SecureMediaView (Updated) ---
 class SecureMediaView(LoginRequiredMixin, View):
@@ -94,3 +97,33 @@ class SystemHealthView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
         metrics = perform_health_check_and_notify()
         context.update(metrics)
         return context
+    
+class SendManualNotificationView(LoginRequiredMixin, UserPassesTestMixin, FormView):
+    template_name = 'common/send_notification.html'
+    form_class = SendNotificationForm
+    success_url = reverse_lazy('common:send-notification')
+
+    def test_func(self):
+        # Only Managers can access this
+        return self.request.user.groups.filter(name='Managers').exists()
+
+    def form_valid(self, form):
+        recipient_type = form.cleaned_data['recipient_type']
+        message = form.cleaned_data['message']
+        notif_type = form.cleaned_data['notification_type']
+        link = form.cleaned_data['link']
+
+        if recipient_type == 'group':
+            group = form.cleaned_data['group']
+            sent = send_notification_to_group(group.name, message, link, notif_type)
+            if sent:
+                messages.success(self.request, f"Notification sent to group '{group.name}'.")
+            else:
+                messages.warning(self.request, f"No users found in group '{group.name}'.")
+        
+        elif recipient_type == 'user':
+            user = form.cleaned_data['user']
+            send_notification_to_user(user, message, link, notif_type)
+            messages.success(self.request, f"Notification sent to {user.username}.")
+
+        return super().form_valid(form)

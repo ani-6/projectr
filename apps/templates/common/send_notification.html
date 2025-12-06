@@ -1,0 +1,100 @@
+{% extends 'base-sidebar.html' %}
+
+{% block page_title %}Send Notifications{% endblock %}
+
+{% block dashboard_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-bottom p-4">
+                <h5 class="fw-bold mb-0">Broadcast Message</h5>
+                <p class="text-muted small mb-0">Send manual alerts to users or groups.</p>
+            </div>
+            
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Recipient Type Toggle -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-muted text-uppercase mb-3">Recipient Type</label>
+                        <div class="d-flex gap-2">
+                            {% for radio in form.recipient_type %}
+                            {{ radio.tag }}
+                            <label class="btn btn-outline-primary px-4" for="{{ radio.id_for_label }}">
+                                {{ radio.choice_label }}
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Selects -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6" id="groupField">
+                            <label class="form-label small text-muted">Target Group</label>
+                            {{ form.group }}
+                            {% if form.group.errors %}
+                                <div class="text-danger small mt-1">{{ form.group.errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 d-none" id="userField">
+                            <label class="form-label small text-muted">Target User</label>
+                            {{ form.user }}
+                            {% if form.user.errors %}
+                                <div class="text-danger small mt-1">{{ form.user.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Message Details -->
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Notification Message</label>
+                        {{ form.message }}
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted">Type/Level</label>
+                            {{ form.notification_type }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small text-muted">Link (Optional)</label>
+                            {{ form.link }}
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end border-top pt-3">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fa-regular fa-paper-plane me-2"></i>Send Notification
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const radios = document.querySelectorAll('input[name="recipient_type"]');
+        const groupField = document.getElementById('groupField');
+        const userField = document.getElementById('userField');
+
+        function toggleFields() {
+            const selected = document.querySelector('input[name="recipient_type"]:checked').value;
+            if (selected === 'group') {
+                groupField.classList.remove('d-none');
+                userField.classList.add('d-none');
+            } else {
+                groupField.classList.add('d-none');
+                userField.classList.remove('d-none');
+            }
+        }
+
+        radios.forEach(radio => radio.addEventListener('change', toggleFields));
+        
+        // Init state
+        toggleFields();
+    });
+</script>
+{% endblock %}
