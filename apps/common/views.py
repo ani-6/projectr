@@ -1,19 +1,15 @@
 import os
 import mimetypes
-import platform
-import time
 from urllib.parse import unquote
 from django.conf import settings
 from django.core import signing
-from django.http import Http404, HttpResponseForbidden, FileResponse, JsonResponse
+from django.http import Http404, FileResponse, JsonResponse
 from django.views import View
 from django.views.generic import ListView, TemplateView
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.db import connection
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
 from .models import Notification
+from .utils import perform_health_check_and_notify
 
 # --- Existing SecureMediaView (Updated) ---
 class SecureMediaView(LoginRequiredMixin, View):
@@ -94,50 +90,7 @@ class SystemHealthView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
-        # 1. Database Check
-        db_status = 'Offline'
-        db_latency = 0
-        try:
-            start = time.time()
-            connection.ensure_connection()
-            if connection.is_usable():
-                db_status = 'Online'
-            end = time.time()
-            db_latency = round((end - start) * 1000, 2)
-        except Exception:
-            pass
-
-        # 2. Redis Check
-        redis_status = 'Offline'
-        redis_latency = 0
-        try:
-            layer = get_channel_layer()
-            start = time.time()
-            # Simple ping operation to Redis channel layer
-            async_to_sync(layer.group_add)("health_check", "health_check_channel")
-            redis_status = 'Online'
-            end = time.time()
-            redis_latency = round((end - start) * 1000, 2)
-        except Exception:
-            pass
-
-        # 3. Server Info
-        server_info = {
-            'status': 'Online',
-            'system': platform.system(),
-            'node': platform.node(),
-            'release': platform.release(),
-            'python': platform.python_version(),
-            'machine': platform.machine()
-        }
-
-        context.update({
-            'db_status': db_status,
-            'db_latency': db_latency,
-            'redis_status': redis_status,
-            'redis_latency': redis_latency,
-            'server_info': server_info,
-            'api_status': 'Online' # If we rendered this view, Django is serving requests
-        })
+        # Use the shared utility function
+        metrics = perform_health_check_and_notify()
+        context.update(metrics)
         return context
