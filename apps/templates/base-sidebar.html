@@ -11,19 +11,18 @@
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
     <!-- Sidebar -->
-    <div class="sidebar d-flex flex-column flex-shrink-0" id="sidebarMenu">
-        <div class="sidebar-header d-flex align-items-center justify-content-center border-bottom border-light pb-4 mx-3">
-            <div class="d-flex align-items-center gap-2 text-decoration-none">
-                <div class="bg-primary text-white rounded-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px;">
-                    <i class="fa-solid fa-layer-group"></i>
-                </div>
-                <span class="fs-4 fw-bold text-dark tracking-tight" style="color: var(--text-main);">ProjectR</span>
-            </div>
-            <button type="button" class="btn-close d-lg-none position-absolute top-0 end-0 m-3" aria-label="Close" onclick="toggleSidebar()"></button>
+    <div class="sidebar" id="sidebarMenu">
+        <!-- Sidebar Header -->
+        <div class="sidebar-header d-flex align-items-center">
+            <a href="{% url 'dashboard:home' %}" class="sidebar-logo">
+                <i class="fas fa-cloud-meatball"></i>
+                <span>ProjectR</span>
+            </a>
         </div>
 
-        <div class="sidebar-body flex-grow-1 overflow-y-auto custom-scrollbar py-3">
-            <ul class="nav flex-column gap-2 mb-auto">
+        <!-- Sidebar Body -->
+        <div class="sidebar-body custom-scrollbar">
+            <ul class="nav flex-column mb-auto">
                 <div class="nav-section-title">Main Menu</div>
                 <li class="nav-item">
                     <a href="{% url 'dashboard:home' %}" class="nav-link {% if request.resolver_match.view_name == 'dashboard:home' %}active{% endif %}">
@@ -54,17 +53,17 @@
             </ul>
         </div>
         
-        <!-- Bottom User Block -->
-        <div class="p-3 mt-auto">
-             <div class="d-flex align-items-center gap-3 p-2 rounded-3" style="background: rgba(0,0,0,0.02);">
-                <img src="{{ request.user.user_profile.profile_picture.url }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+        <!-- Sidebar Footer (User Block) -->
+        <div class="sidebar-footer">
+             <div class="user-block">
+                <img src="{{ request.user.user_profile.profile_picture.url }}" class="rounded-circle object-fit-cover" width="40" height="40">
                 <div class="flex-grow-1 overflow-hidden">
                     <h6 class="mb-0 small fw-bold text-truncate" style="color: var(--text-main);">{{ request.user.first_name|default:request.user.username }}</h6>
-                    <span class="text-muted small" style="font-size: 0.7rem;">Free Plan</span>
+                    <span class="text-muted small d-block">Free Plan</span>
                 </div>
-                <form action="{% url 'account:logout' %}" method="post">
+                <form action="{% url 'account:logout' %}" method="post" class="m-0 p-0">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-link text-danger p-0"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+                    <button type="submit" class="btn btn-sm btn-link text-danger p-0 border-0"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
                 </form>
              </div>
         </div>
@@ -73,11 +72,11 @@
     <!-- Main Content Wrapper -->
     <div class="main-wrapper">
         <!-- Top Bar -->
-        <header class="top-bar">
+        <header class="top-bar position-relative">
             <!-- Left: Toggle & Title -->
-            <div class="d-flex align-items-center gap-3" style="min-width: 0;">
-                <button class="btn d-lg-none shadow-sm rounded-circle p-2 flex-shrink-0" type="button" onclick="toggleSidebar()" style="width: 40px; height: 40px;">
-                    <i class="fa-solid fa-bars"></i>
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-icon d-lg-none text-muted" type="button" onclick="toggleSidebar()">
+                    <i class="fa-solid fa-bars fs-5"></i>
                 </button>
                 <!-- Desktop Search -->
                 <div class="search-bar-container d-none d-md-flex">
@@ -87,46 +86,44 @@
             </div>
 
             <!-- Right: Actions -->
-            <div class="d-flex align-items-center gap-2 gap-md-3 flex-shrink-0">
+            <div class="d-flex align-items-center gap-3">
                 <!-- Theme Toggle -->
-                <button class="btn bg-transparent rounded-circle d-flex align-items-center justify-content-center p-0" 
-                        style="width: 40px; height: 40px; border: 1px solid var(--border-color);" 
+                <button class="btn bg-transparent rounded-circle d-flex align-items-center justify-content-center p-0 rounded-icon" 
                         id="themeToggle">
                      <i class="fa-solid fa-moon text-muted" id="themeIcon"></i>
                 </button>
 
                 <!-- Notifications -->
                 <div class="dropdown">
-                    <button class="btn bg-transparent rounded-circle position-relative p-0 d-flex align-items-center justify-content-center" 
-                            style="width: 40px; height: 40px; border: 1px solid var(--border-color);" 
+                    <button class="btn bg-transparent rounded-circle position-relative p-0 d-flex align-items-center justify-content-center rounded-icon" 
                             data-bs-toggle="dropdown">
                         <i class="fa-regular fa-bell text-muted"></i>
                         {% if user_notifications_count > 0 %}
                         <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
                         {% endif %}
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 p-2" style="width: 300px;">
-                        <li><h6 class="dropdown-header">Notifications</h6></li>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 p-2" style="width: 320px;">
+                        <li><h6 class="dropdown-header fw-bold">Notifications</h6></li>
+                        <li><hr class="dropdown-divider"></li>
                         {% for notification in user_notifications %}
                         <li>
                             <a class="dropdown-item rounded-3 mb-1 p-2" href="#"
                             onclick="markAsRead(event, {{ notification.id }}, '{{ notification.link|default:'' }}')">
-                                <div class="d-flex gap-2">
-                                    <div class="bg-secondary bg-opacity-10 text-{{ notification.notification_type }} rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 32px; height: 32px;">
+                                <div class="d-flex gap-3 align-items-start">
+                                    <div class="flex-shrink-0 mt-1">
                                         {% if notification.notification_type == 'success' %}
-                                            <i class="fa-solid fa-check fa-xs text-info"></i>
+                                            <i class="fa-solid fa-circle-check text-success"></i>
                                         {% elif notification.notification_type == 'danger' %}
-                                            <i class="fa-solid fa-triangle-exclamation fa-xs text-danger"></i>
+                                            <i class="fa-solid fa-circle-exclamation text-danger"></i>
                                         {% elif notification.notification_type == 'warning' %}
-                                            <i class="fa-solid fa-exclamation fa-xs text-warning"></i>
+                                            <i class="fa-solid fa-triangle-exclamation text-warning"></i>
                                         {% else %}
-                                            <i class="fa-solid fa-info fa-xs text-info"></i>
+                                            <i class="fa-solid fa-circle-info text-info"></i>
                                         {% endif %}
-                           
                                     </div>
                                     <div>
-                                        <p class="mb-0 small text-wrap">{{ notification.message }}</p>
-                                        <small class="text-muted" style="font-size: 0.65rem;">{{ notification.created_at|timesince }} ago</small>
+                                        <p class="mb-0 small text-wrap lh-sm">{{ notification.message }}</p>
+                                        <small class="text-muted" style="font-size: 0.7rem;">{{ notification.created_at|timesince }} ago</small>
                                     </div>
                                 </div>
                             </a>
@@ -134,27 +131,26 @@
                         {% empty %}
                         <li class="text-center p-3 text-muted small">No new notifications</li>
                         {% endfor %}
+                        <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item rounded-3 text-center small text-primary fw-bold" href="{% url 'common:notification-list' %}">View all notifications</a></li>
                     </ul>
                 </div>
 
                 <!-- Mobile Search Toggle -->
-                <button class="btn bg-transparent rounded-circle d-md-none d-flex align-items-center justify-content-center p-0" 
-                        style="width: 40px; height: 40px; border: 1px solid var(--border-color);" 
-                        onclick="toggleSearch()">
-                     <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                <button class="btn btn-icon border-0 d-md-none text-muted" onclick="toggleSearch()">
+                     <i class="fa-solid fa-magnifying-glass fs-5"></i>
                 </button>
 
-                <!-- Profile Dropdown (New) -->
+                <!-- Profile Dropdown -->
                 <div class="dropdown">
-                    <a href="#" class="d-block" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a href="#" class="d-block" data-bs-toggle="dropdown">
                         {% if request.session.user_avatar %}
-                            <img src="{{ request.session.user_avatar }}" alt="User" class="rounded-circle border border-2 border-white shadow-sm" style="width: 40px; height: 40px; object-fit: cover;">
+                            <img src="{{ request.session.user_avatar }}" class="rounded-circle border border-2 border-white shadow-sm object-fit-cover" width="40" height="40">
                         {% else %}
-                            <img src="{{ request.user.user_profile.profile_picture.url }}" alt="User" class="rounded-circle border border-2 border-white shadow-sm" style="width: 40px; height: 40px; object-fit: cover;">
+                            <img src="{{ request.user.user_profile.profile_picture.url }}" class="rounded-circle border border-2 border-white shadow-sm object-fit-cover" width="40" height="40">
                         {% endif %}
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4" style="width: 100px;">
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 p-2">
                         <li><h6 class="dropdown-header text-truncate">Hi, {{ request.user.username }}</h6></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item rounded-3" href="{% url 'account:profile' %}"><i class="fa-regular fa-user me-2"></i>Profile</a></li>
@@ -168,12 +164,10 @@
                         </li>
                     </ul>
                 </div>
-
             </div>
 
-            <!-- Mobile Search Bar (Hidden by default) -->
-            <div id="mobileSearchBar" class="position-absolute start-0 w-100 p-3 shadow-sm d-none d-md-none border-bottom" 
-                 style="top: 100%; background-color: var(--bg-card); z-index: 999;">
+            <!-- Mobile Search Bar -->
+            <div id="mobileSearchBar" class="position-absolute start-0 w-100 p-3 shadow-sm d-none d-md-none border-bottom" style="top: 100%; background-color: var(--bg-card); z-index: 100;">
                  <div class="search-bar-container w-100">
                      <i class="fa-solid fa-magnifying-glass text-muted"></i>
                      <input type="search" placeholder="Search..." aria-label="Search" class="w-100">
@@ -182,7 +176,16 @@
         </header>
 
         <main class="w-100">
-            <h4 class="fw-bold mb-0 text-truncate d-none d-lg-block" style="color: var(--text-main);">{% block page_title %}Main Dashboard{% endblock %}</h4>
+            <!-- Common Page Title & Breadcrumb -->
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                <h4 class="fw-bold mb-0 text-body">{% block page_title %}{% endblock %}</h4>
+                <!--nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}" class="text-decoration-none text-muted small">Home</a></li>
+                        {% block breadcrumb %}{% endblock %}
+                    </ol>
+                </nav-->
+            </div>
 
             {% block dashboard_content %}{% endblock %}
         </main>
@@ -192,13 +195,19 @@
 {% if messages %}
 <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1060">
     {% for message in messages %}
-    <div class="toast border-0 shadow-lg rounded-4 overflow-hidden" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex align-items-center p-3 border-start border-4 border-{{ message.tags|default:'primary' }}">
+    <div class="toast align-items-center border-0 shadow-lg rounded-4 overflow-hidden mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex p-3 border-start border-4 border-{{ message.tags|default:'primary' }} bg-card">
             <div class="flex-shrink-0 text-{{ message.tags|default:'primary' }}">
-                <i class="fa-solid fa-circle-info fs-4"></i>
+                {% if message.tags == 'success' %}
+                    <i class="fa-solid fa-circle-check fs-5"></i>
+                {% elif message.tags == 'error' or message.tags == 'danger' %}
+                    <i class="fa-solid fa-circle-xmark fs-5"></i>
+                {% else %}
+                    <i class="fa-solid fa-circle-info fs-5"></i>
+                {% endif %}
             </div>
             <div class="flex-grow-1 ms-3">
-                <p class="mb-0 fw-medium">{{ message }}</p>
+                <p class="mb-0 fw-medium small">{{ message }}</p>
             </div>
             <button type="button" class="btn-close ms-2" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
@@ -213,9 +222,7 @@
         event.preventDefault();
         fetch(`/common/notifications/${id}/read/`, {
             method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-            },
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' },
         })
         .then(response => response.json())
         .then(data => {
@@ -228,21 +235,5 @@
             }
         });
     }
-
-    function markAllRead() {
-        fetch(`/common/notifications/read-all/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-            },
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                location.reload();
-            }
-        });
-    }
 </script>
-
 {% endblock %}

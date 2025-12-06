@@ -13,7 +13,7 @@
         <div class="row g-4">
             <!-- Left Column: Avatar -->
             <div class="col-lg-4">
-                <div class="card border-0 shadow-sm text-center">
+                <div class="card text-center">
                     <div class="card-body p-4">
                         <h6 class="fw-bold mb-4">Profile Picture</h6>
                         
@@ -30,7 +30,7 @@
                         </div>
 
                         {% if '_default.jpg' not in request.user.user_profile.profile_picture.url %}
-                        <button class="btn btn-outline-danger btn-sm w-100" type="submit" form="deleteAvatarForm">
+                        <button class="btn btn-outline-danger btn-sm w-100 mt-2" type="submit" form="deleteAvatarForm">
                             <i class="fa-regular fa-trash-can me-2"></i>Remove Photo
                         </button>
                         {% endif %}
@@ -41,11 +41,11 @@
             <!-- Right Column: Forms -->
             <div class="col-lg-8">
                 <!-- Basic Info -->
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header border-bottom border-light p-3 d-flex justify-content-between align-items-center">
-                        <h6 class="fw-bold mb-0">Account Information</h6>
-                        <a href="{% url 'account:change-password' %}" class="btn btn-sm text-muted border">
-                            <i class="fa-solid fa-key me-1"></i> Password
+                <div class="card mb-4">
+                    <div class="card-header bg-transparent border-bottom p-3 d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0">Account Information</h5>
+                        <a href="{% url 'account:change-password' %}" class="btn btn-sm btn-icon border" title="Change Password">
+                            <i class="fa-solid fa-key"></i>
                         </a>
                     </div>
                     <div class="card-body p-4">
@@ -73,15 +73,15 @@
                 </div>
 
                 <!-- Profile Details -->
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header border-bottom border-light p-3">
+                <div class="card">
+                    <div class="card-header bg-transparent border-bottom p-3">
                         <h6 class="fw-bold mb-0">Public Profile</h6>
                     </div>
                     <div class="card-body p-4">
                         <div class="mb-3">
                             <label class="form-label small text-muted">Headline</label>
                             {{ profile_form.headline }}
-                            <div class="form-text">A brief description of who you are.</div>
+                            <div class="form-text small">A brief description of who you are.</div>
                         </div>
                         
                         <div class="mb-3">
@@ -95,7 +95,7 @@
                         </div>
 
                         <div class="d-flex justify-content-end">
-                            <button class="btn btn-primary px-4 fw-medium" type="submit">Save Changes</button>
+                            <button class="btn btn-primary px-4" type="submit">Save Changes</button>
                         </div>
                     </div>
                 </div>

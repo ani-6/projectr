@@ -3,130 +3,101 @@
 {% block page_title %}Manager Dashboard{% endblock %}
 
 {% block dashboard_content %}
-<div class="container-fluid py-3">
-    <div class="d-flex justify-content-end align-items-center pb-3 mb-4 border-bottom">
-        <!-- Title is now handled via page_title block for consistency -->
-        <div class="btn-toolbar mb-2 mb-md-0">
-            <button type="button" class="btn btn-sm btn-outline-secondary">
-                <i class="fa-solid fa-download me-1"></i> Export Report
-            </button>
-        </div>
-    </div>
 
-    <!-- Stats Cards -->
-    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4 mb-5">
-        <!-- Total Users Card -->
-        <div class="col">
+
+<!-- Stats Cards -->
+<div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4 mb-5">
+    <!-- Total Users -->
+    <div class="col">
             <div class="card border-0 shadow-sm h-100 border-start border-4 border-primary bg-body">
-                <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
                             <p class="mb-0 text-muted small fw-bold text-uppercase">Total Users</p>
                             <h3 class="mb-0 fw-bold text-body">{{ total_users }}</h3>
-                        </div>
+                    </div>
                         <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-3">
                             <i class="fa-solid fa-users fa-lg"></i>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Active Users Card -->
-        <div class="col">
+    <!-- Active Users -->
+    <div class="col">
             <div class="card border-0 shadow-sm h-100 border-start border-4 border-success bg-body">
-                <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
                             <p class="mb-0 text-muted small fw-bold text-uppercase">Active Users</p>
                             <h3 class="mb-0 fw-bold text-body">{{ new_users_count }}</h3>
-                        </div>
+                    </div>
                         <div class="bg-success bg-opacity-10 text-success rounded-circle p-3">
                             <i class="fa-solid fa-user-check fa-lg"></i>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Pending Approvals (Mock Data) -->
-        <div class="col">
+    </div>
+    
+    <!-- Pending -->
+    <div class="col">
             <div class="card border-0 shadow-sm h-100 border-start border-4 border-warning bg-body">
-                <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
                             <p class="mb-0 text-muted small fw-bold text-uppercase">Pending Approvals</p>
                             <h3 class="mb-0 fw-bold text-body">5</h3>
-                        </div>
+                    </div>
                         <div class="bg-warning bg-opacity-10 text-warning rounded-circle p-3">
                             <i class="fa-regular fa-clock fa-lg"></i>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- System Alerts (Mock Data) -->
-        <div class="col">
+    <!-- Alerts -->
+    <div class="col">
             <div class="card border-0 shadow-sm h-100 border-start border-4 border-danger bg-body">
-                <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <div>
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
                             <p class="mb-0 text-muted small fw-bold text-uppercase">System Alerts</p>
                             <h3 class="mb-0 fw-bold text-body">2</h3>
-                        </div>
+                    </div>
                         <div class="bg-danger bg-opacity-10 text-danger rounded-circle p-3">
                             <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Quick Links Section (Enhanced List View) -->
-    {% if dashboard_links %}
-    <div class="mb-5">
-        <h5 class="text-body-secondary mb-3 fw-bold text-uppercase small" style="letter-spacing: 0.5px;">Quick Access</h5>
-        <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
-            <div class="list-group list-group-flush">
-                {% for link in dashboard_links %}
-                <a href="{{ link.url }}" class="list-group-item list-group-item-action d-flex align-items-center gap-3 p-4 bg-body link-item-animate" {% if link.open_in_new_tab %}target="_blank"{% endif %} style="border-bottom: 1px solid rgba(0,0,0,0.05);">
-                    <div class="bg-primary bg-opacity-10 text-primary rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; transition: all 0.3s ease;">
-                        <i class="{{ link.icon }} fa-lg"></i>
-                    </div>
-                    <div class="flex-grow-1">
-                        <h6 class="fw-bold mb-1 text-body">{{ link.title }}</h6>
-                        {% if link.description %}
-                        <p class="small text-secondary mb-0">{{ link.description }}</p>
-                        {% endif %}
-                    </div>
-                    <i class="fa-solid fa-chevron-right text-muted opacity-25"></i>
-                </a>
-                {% endfor %}
-            </div>
+<!-- Quick Links Section -->
+{% if dashboard_links %}
+<div class="mb-5">
+    <h5 class="fw-bold text-uppercase small text-muted mb-3 tracking-tight">Quick Access</h5>
+    <div class="card overflow-hidden">
+        <div class="list-group list-group-flush">
+            {% for link in dashboard_links %}
+            <a href="{{ link.url }}" class="list-group-item list-group-item-action p-4 d-flex align-items-center gap-3 user-list-item" {% if link.open_in_new_tab %}target="_blank"{% endif %}>
+                <div class="stat-card-icon bg-primary bg-opacity-10 text-primary flex-shrink-0">
+                    <i class="{{ link.icon }}"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="fw-bold mb-1">{{ link.title }}</h6>
+                    {% if link.description %}
+                    <p class="small text-muted mb-0">{{ link.description }}</p>
+                    {% endif %}
+                </div>
+                <i class="fa-solid fa-chevron-right text-muted opacity-25"></i>
+            </a>
+            {% endfor %}
         </div>
     </div>
-
-    <style>
-        .link-item-animate {
-            transition: all 0.2s ease;
-        }
-        .link-item-animate:hover {
-            background-color: rgba(var(--bs-primary-rgb), 0.03) !important;
-            padding-left: 1.8rem !important; /* Slight slide effect */
-        }
-        .link-item-animate:hover .bg-primary {
-            background-color: var(--bs-primary) !important;
-            color: white !important;
-            box-shadow: 0 4px 6px rgba(var(--bs-primary-rgb), 0.3);
-        }
-        .link-item-animate:hover .fa-chevron-right {
-            opacity: 1 !important;
-            color: var(--bs-primary) !important;
-        }
-    </style>
-    {% endif %}
-
 </div>
+{% endif %}
 {% endblock %}

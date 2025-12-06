@@ -5,24 +5,34 @@ from django.conf import settings
 from django.core import signing
 from django.http import Http404, HttpResponseForbidden, FileResponse, JsonResponse
 from django.views import View
-from django.views.generic import ListView # Added ListView
+from django.views.generic import ListView
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import Notification
 
-# --- Existing SecureMediaView ---
+# --- Existing SecureMediaView (Updated) ---
 class SecureMediaView(LoginRequiredMixin, View):
     raise_exception = False
+    
     def get(self, request, path):
         path = unquote(path)
         file_path_rel = None
-        if getattr(settings, 'SECURE_MEDIA_ENCRYPTION', True):
+
+        # 1. Whitelist Default Images: Allow them without signature
+        # This fixes the issue where hardcoded default paths in JS/HTML (like in Chat UI) fail to load
+        if 'default.jpg' in path or '_default.jpg' in path or 'default.svg' in path:
+            file_path_rel = path
+            
+        # 2. For all other files, enforce encryption if enabled
+        elif getattr(settings, 'SECURE_MEDIA_ENCRYPTION', True):
             try:
                 file_path_rel = signing.loads(path, salt='secure-media')
             except signing.BadSignature:
                 raise Http404("Invalid media URL")
         else:
             file_path_rel = path
+
+        # 3. Serve the file
         file_path = os.path.join(settings.MEDIA_ROOT, file_path_rel)
         try:
             full_path = os.path.abspath(file_path)
@@ -31,8 +41,10 @@ class SecureMediaView(LoginRequiredMixin, View):
                 raise Http404("Invalid file path")
         except Exception:
             raise Http404("Invalid file path")
+            
         if not os.path.exists(full_path) or not os.path.isfile(full_path):
             raise Http404("Media file does not exist")
+            
         content_type, encoding = mimetypes.guess_type(full_path)
         content_type = content_type or 'application/octet-stream'
         return FileResponse(open(full_path, 'rb'), content_type=content_type)

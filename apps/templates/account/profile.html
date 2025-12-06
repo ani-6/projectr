@@ -7,35 +7,28 @@
     <div class="col-lg-10">
         
         <!-- Profile Card -->
-        <div class="card shadow-sm border-0 overflow-hidden mb-4">
+        <div class="card border-0 overflow-hidden mb-4">
             <!-- Cover Photo -->
             {% with cover_url=request.user.user_profile.cover_picture.url %}
-            <div style="height: 200px; background-color: #343a40; 
-                {% if '_default.jpg' not in cover_url %}
-                background-image: url('{{ cover_url }}'); background-size: cover; background-position: center;
-                {% endif %}">
-            </div>
+            <div class="profile-cover" style="{% if '_default.jpg' not in cover_url %}background-image: url('{{ cover_url }}');{% endif %}"></div>
             {% endwith %}
 
-            <div class="card-body px-4 pb-4">
+            <div class="card-body px-4 pb-4 pt-0">
                 <div class="row align-items-end">
                     <div class="col-auto">
-                        <!-- Avatar (Overlaps Cover) -->
-                        <div class="position-relative" style="margin-top: -80px;">
-                            <img src="{{ request.user.user_profile.profile_picture.url }}" 
-                                 alt="Profile" 
-                                 class="rounded-circle border border-4 border-white shadow-sm bg-white"
-                                 style="width: 140px; height: 140px; object-fit: cover;">
+                        <!-- Avatar -->
+                        <div class="profile-avatar-container">
+                            <img src="{{ request.user.user_profile.profile_picture.url }}" alt="Profile" class="profile-avatar-img rounded-circle shadow-sm">
                         </div>
                     </div>
-                    <div class="col pt-3 pt-md-0">
-                        <div class="d-flex justify-content-between align-items-start flex-wrap">
+                    <div class="col pt-4 pt-md-0 ps-md-4">
+                        <div class="d-flex justify-content-between align-items-start flex-wrap mt-2">
                             <div>
-                                <h3 class="fw-bold mb-0">{{ request.user.get_full_name|default:request.user.username }}</h3>
+                                <h3 class="fw-bold mb-1">{{ request.user.get_full_name|default:request.user.username }}</h3>
                                 <p class="text-muted mb-0">{{ request.user.user_profile.headline|default:"ProjectR Member" }}</p>
                             </div>
-                            <a href="{% url 'account:users-settings' %}" class="btn btn-sm btn-outline-dark mt-2 mt-md-0 fw-medium">
-                                <i class="fa-solid fa-pen me-2"></i>Edit Profile
+                            <a href="{% url 'account:users-settings' %}" class="btn btn-sm btn-icon border shadow-sm ms-auto mt-2 mt-md-0" title="Edit Profile">
+                                <i class="fa-solid fa-pen"></i>
                             </a>
                         </div>
                     </div>
@@ -47,15 +40,15 @@
         <div class="row g-4">
             <!-- About -->
             <div class="col-md-7">
-                <div class="card h-100 border-0 shadow-sm">
+                <div class="card h-100">
                     <div class="card-body p-4">
-                        <h6 class="fw-bold text-uppercase small text-muted mb-3">About Me</h6>
+                        <h6 class="fw-bold text-uppercase text-muted small mb-3">About Me</h6>
                         {% if request.user.user_profile.bio %}
-                            <p class="text-body-secondary mb-0" style="white-space: pre-line; line-height: 1.7;">{{ request.user.user_profile.bio }}</p>
+                            <p class="text-body mb-0" style="white-space: pre-line; line-height: 1.7;">{{ request.user.user_profile.bio }}</p>
                         {% else %}
-                            <div class="text-center py-4 text-muted bg-light rounded-3">
-                                <i class="fa-regular fa-file-lines mb-2 fs-4"></i>
-                                <p class="mb-0 small">No bio information added yet.</p>
+                            <div class="text-center py-4 rounded-3">
+                                <i class="fa-regular fa-file-lines mb-2 fs-4 text-muted"></i>
+                                <p class="mb-0 small text-muted">No bio information added yet.</p>
                             </div>
                         {% endif %}
                     </div>
@@ -64,13 +57,13 @@
 
             <!-- Details -->
             <div class="col-md-5">
-                <div class="card h-100 border-0 shadow-sm">
+                <div class="card h-100">
                     <div class="card-body p-4">
-                        <h6 class="fw-bold text-uppercase small text-muted mb-3">Personal Details</h6>
+                        <h6 class="fw-bold text-uppercase text-muted small mb-3">Personal Details</h6>
                         
-                        <div class="vstack gap-3">
+                        <div class="d-flex flex-column gap-3">
                             <div class="d-flex align-items-center">
-                                <div class="bg-light rounded p-2 text-muted me-3">
+                                <div class="btn-icon text-muted me-3 rounded-circle rounded-icon">
                                     <i class="fa-regular fa-envelope"></i>
                                 </div>
                                 <div>
@@ -80,7 +73,7 @@
                             </div>
                             
                             <div class="d-flex align-items-center">
-                                <div class="bg-light rounded p-2 text-muted me-3">
+                                <div class="btn-icon text-muted me-3 rounded-circle rounded-icon">
                                     <i class="fa-regular fa-user"></i>
                                 </div>
                                 <div>
@@ -90,7 +83,7 @@
                             </div>
 
                             <div class="d-flex align-items-center">
-                                <div class="bg-light rounded p-2 text-muted me-3">
+                                <div class="btn-icon text-muted me-3 rounded-circle rounded-icon">
                                     <i class="fa-regular fa-calendar"></i>
                                 </div>
                                 <div>
