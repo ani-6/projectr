@@ -515,7 +515,7 @@ h1, h2, h3, h4, h5, h6 {
    ========================================================================== */
 
 /* --- Large Devices (Desktops, < 992px) --- */
-@media (max-width: 991.98px) {
+@media (max-width: 992px) {
     /* Collapse Sidebar */
     .sidebar {
         transform: translateX(-100%);
@@ -541,7 +541,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* --- Medium Devices (Tablets, < 768px) --- */
-@media (max-width: 767.98px) {
+@media (max-width: 768px) {
     .chat-wrapper {
         height: calc(100vh - 90px);
         margin: -15px; /* Remove padding from main wrapper for chat */
@@ -567,10 +567,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* --- Small Devices (Phones, < 576px) --- */
-@media (max-width: 575.98px) {
-    .main-wrapper {
-        padding: 10px;
-    }
+@media (max-width: 576px) {
     
     .top-bar {
         padding: 0 15px;
