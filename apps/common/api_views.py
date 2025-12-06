@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from .models import Notification
 from .serializers import NotificationSerializer
-from apps.account.serializers import UserSerializer # Reusing UserSerializer
+from apps.account.serializers import UserSerializer
 
 class StandardResultsSetPagination(PageNumberPagination):
     """
@@ -32,7 +32,7 @@ class NotificationListAPIView(generics.ListAPIView):
 class UserSearchAPIView(APIView):
     """
     API to search users for the notification form.
-    Returns top 10 active users if no query provided.
+    Returns top 50 active users if no query provided.
     """
     permission_classes = [permissions.IsAuthenticated]
 
@@ -48,8 +48,20 @@ class UserSearchAPIView(APIView):
                 Q(last_name__icontains=query)
             )
         
-        # Limit to 10 results for performance
-        users = users[:10]
+        # Limit results (increased to 50 to provide a better list view)
+        users = users[:50]
         
-        data = [{'id': u.id, 'text': f"{u.get_full_name()} ({u.username})"} for u in users]
+        data = []
+        for u in users:
+            # Safe access to profile picture
+            avatar = '/media/Account/profile_images/default.jpg'
+            if hasattr(u, 'user_profile') and u.user_profile.profile_picture:
+                avatar = u.user_profile.profile_picture.url
+            
+            data.append({
+                'id': u.id,
+                'text': f"{u.get_full_name()} ({u.username})",
+                'avatar': avatar
+            })
+            
         return Response(data)
