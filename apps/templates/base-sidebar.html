@@ -43,6 +43,16 @@
                     </a>
                 </li>
                 
+                {% if is_manager %}
+                <div class="nav-section-title">Administration</div>
+                <li class="nav-item">
+                    <a href="{% url 'common:system-health' %}" class="nav-link {% if request.resolver_match.view_name == 'common:system-health' %}active{% endif %}">
+                        <i class="fa-solid fa-server"></i> 
+                        <span>System Health</span>
+                    </a>
+                </li>
+                {% endif %}
+
                 <div class="nav-section-title">Preferences</div>
                 <li class="nav-item">
                     <a href="{% url 'account:users-settings' %}" class="nav-link {% if request.resolver_match.view_name == 'account:users-settings' %}active{% endif %}">

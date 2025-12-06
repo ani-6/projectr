@@ -514,7 +514,18 @@ h1, h2, h3, h4, h5, h6 {
     width: 40px; 
     height: 40px; 
     border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
 }
+
+/* Ensure border persists on active/focus states, especially on mobile */
+.rounded-icon:hover, 
+.rounded-icon:focus, 
+.rounded-icon:active, 
+.rounded-icon.show,
+.rounded-icon[aria-expanded="true"] {
+    border-color: var(--border-color) !important;
+}
+
 /* ==========================================================================
    7. RESPONSIVE DESIGN
    ========================================================================== */

@@ -75,6 +75,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'apps.common.context_processors.notifications',
+                'apps.common.context_processors.system_health',
                 'apps.dashboard.context_processors.sidebar_links',
             ],
         },
