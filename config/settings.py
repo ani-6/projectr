@@ -215,13 +215,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SECURE_MEDIA_ENCRYPTION = os.getenv('SECURE_MEDIA_ENCRYPTION', 'True') == 'True'
 
 # --- CORS Settings ---
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', 'False') == 'True'
 CORS_ALLOW_CREDENTIALS = True 
-CORS_ALLOWED_ORIGINS = [origin for origin in os.getenv("CORS_ALLOWED_ORIGINS","").split(",") if origin]
+CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
 
 #CSRF settings
-CSRF_TRUSTED_ORIGINS = [origin for origin in os.getenv("CSRF_TRUSTED_ORIGINS","").split(",") if origin]
-
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
 CORS_ALLOW_CREDENTIALS = True 
 CSRF_COOKIE_HTTPONLY = False  # To allow JavaScript to access the CSRF cookie
 CSRF_COOKIE_NAME = "csrftoken"
