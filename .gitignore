@@ -6,3 +6,4 @@ thumbnails/
 log/
 *.log
 *Identifier
+.env
