@@ -47,11 +47,12 @@ INSTALLED_APPS = [
     'apps.account',
     'apps.dashboard',
     'apps.common',
-    'apps.chat', # New Chat App
+    'apps.chat',
+    'apps.media_manager',
     'rest_framework',
     'rest_framework.authtoken',
     'drf_yasg',
-    'channels', # Django Channels
+    'channels',
 ]
 
 MIDDLEWARE = [
