@@ -15,7 +15,6 @@ class FolderAdmin(admin.ModelAdmin):
     list_display = ('name', 'parent', 'files_count', 'deleted')
     list_filter = ('deleted', 'parent')
     search_fields = ('name',)
-    autocomplete_fields = ['parent'] 
 
 @admin.register(SubredditList)
 class SubredditListAdmin(admin.ModelAdmin):

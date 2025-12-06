@@ -20,7 +20,7 @@ class ErrorCode(models.Model):
 
 class Folder(models.Model):
     name = models.CharField(max_length=255, verbose_name='Folder Name')
-    parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='subfolders', verbose_name='Parent Folder')
+    parent = models.IntegerField(null=True, blank=True,default=None, verbose_name='Parent Folder')
     files_count = models.IntegerField(default=0, verbose_name='Files Count')
     deleted = models.BooleanField(default=False, verbose_name='Is Deleted')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Created At')
